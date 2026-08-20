@@ -114,23 +114,43 @@ format_override_summary <- function(params) {
 
 #' @noRd
 read_project_git_commit <- function(root = getOption("stbam.project_root", getwd())) {
+  cached <- getOption("stbam.git_commit", NULL)
+  if (!is.null(cached)) return(cached)
+
+  read_first_line <- function(path) {
+    tryCatch(
+      trimws(readLines(path, n = 1L, warn = FALSE)),
+      error = function(e) NA_character_
+    )
+  }
   head_path <- file.path(root, ".git", "HEAD")
   if (!file.exists(head_path)) return(NA_character_)
-  head <- trimws(readLines(head_path, n = 1L, warn = FALSE))
-  if (!startsWith(head, "ref: ")) return(substr(head, 1L, 12L))
+  head <- read_first_line(head_path)
+  if (is.na(head)) return(NA_character_)
+  if (!startsWith(head, "ref: ")) {
+    commit <- substr(head, 1L, 12L)
+    options(stbam.git_commit = commit)
+    return(commit)
+  }
 
   ref <- sub("^ref: ", "", head)
   ref_path <- file.path(root, ".git", ref)
   if (file.exists(ref_path)) {
-    return(substr(trimws(readLines(ref_path, n = 1L, warn = FALSE)), 1L, 12L))
+    commit <- substr(read_first_line(ref_path), 1L, 12L)
+    if (!is.na(commit)) options(stbam.git_commit = commit)
+    return(commit)
   }
 
   packed_path <- file.path(root, ".git", "packed-refs")
   if (!file.exists(packed_path)) return(NA_character_)
-  packed <- readLines(packed_path, warn = FALSE)
+  packed <- tryCatch(readLines(packed_path, warn = FALSE),
+                     error = function(e) character())
   match <- grep(paste0(" ", ref, "$"), packed, value = TRUE)
   if (length(match) == 0L) return(NA_character_)
-  substr(strsplit(match[[1]], " ", fixed = TRUE)[[1]][[1]], 1L, 12L)
+  commit <- substr(strsplit(match[[1]], " ", fixed = TRUE)[[1]][[1]],
+                   1L, 12L)
+  options(stbam.git_commit = commit)
+  commit
 }
 
 #' Build canonical figure metadata for one scenario/receptor/metric

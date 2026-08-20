@@ -242,6 +242,16 @@ test_that("build_figure_metadata gathers real model values, not invented ones", 
   expect_match(meta$git_commit, "^[0-9a-f]{12}$")
 })
 
+test_that("Git provenance is cached after the first successful lookup", {
+  old <- options(stbam.git_commit = NULL)
+  on.exit(options(old), add = TRUE)
+  first <- read_project_git_commit()
+  expect_match(first, "^[0-9a-f]{12}$")
+  expect_equal(getOption("stbam.git_commit"), first)
+  expect_equal(read_project_git_commit(root = tempfile("missing-project-")),
+               first)
+})
+
 test_that("figure footnotes are self-contained: scenario, receptor, metric, MSA basis and RQ/LOC all present", {
   row <- tc[tc$metric_id == "bird_acute_screening" & tc$day == 0, ]
   meta <- build_figure_metadata(row, bird_metrics, params)
