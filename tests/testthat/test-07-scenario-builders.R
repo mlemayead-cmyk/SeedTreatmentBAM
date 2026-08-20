@@ -222,6 +222,53 @@ test_that("a body-weight override propagates into the food-intake regression", {
                                 5.078770266809547)))
 })
 
+test_that("a seeds_per_ha override propagates into the mass seeding rate (AUD-094)", {
+  # Independent audit finding: overriding seeds_per_ha correctly raised the
+  # surface seed density but left seeding_rate_kg_per_ha (and hence
+  # field_rate_g_ai_per_ha) at the pre-override value, silently violating the
+  # row's own identity seeds_per_ha x TKW / 1e6 = seeding_rate_kg_per_ha.
+  baseline_rows <- build_scenario_inputs(
+    params, crops = "Barley", workbooks = "small_cereals", rate_levels = "high",
+    planting_methods = "broadcast"
+  )
+  before <- baseline_rows[baseline_rows$seeding_rate_bound == "low" &
+                             baseline_rows$seed_mass_bound == "low_tkw", ]
+  expect_equal(before$seeds_per_ha, 1800000)
+  expect_equal(before$seeding_rate_kg_per_ha, 44.64, tolerance = 1e-9)
+
+  changed <- set_override(params, "seeds_per_ha", 2400000, scope = "Barley:low",
+                          baseline_value = 1800000, source = "Test")
+  after_rows <- build_scenario_inputs(
+    changed, crops = "Barley", workbooks = "small_cereals", rate_levels = "high",
+    planting_methods = "broadcast"
+  )
+  after <- after_rows[after_rows$seeding_rate_bound == "low" &
+                         after_rows$seed_mass_bound == "low_tkw", ]
+
+  expect_equal(after$seeds_per_ha, 2400000)
+  expect_equal(after$initial_surface_seeds_per_m2, 240)   # 2,400,000 / 10,000
+  # The consistent mass rate at TKW 24.8 is 2,400,000 x 24.8 / 1e6 = 59.52,
+  # not the stale pre-override 44.64.
+  expect_equal(after$seeding_rate_kg_per_ha, 59.52, tolerance = 1e-9)
+  expect_equal(after$field_rate_g_ai_per_ha, 0.3 * 59.52, tolerance = 1e-9)
+
+  # The row's own round-trip identity holds again after the fix.
+  expect_equal(after$seeds_per_ha * after$tkw_g_per_1000 / 1e6,
+               after$seeding_rate_kg_per_ha, tolerance = 1e-12)
+
+  # An explicit mass-rate override still takes precedence over the derived
+  # value, exactly like the food-intake override test below.
+  both <- set_override(changed, "seeding_rate_kg_per_ha", 100,
+                       scope = "Barley:low", source = "Test")
+  both_rows <- build_scenario_inputs(
+    both, crops = "Barley", workbooks = "small_cereals", rate_levels = "high",
+    planting_methods = "broadcast"
+  )
+  both_low <- both_rows[both_rows$seeding_rate_bound == "low" &
+                           both_rows$seed_mass_bound == "low_tkw", ]
+  expect_equal(both_low$seeding_rate_kg_per_ha, 100)
+})
+
 test_that("an explicit food-intake override takes precedence", {
   changed <- set_override(params, "food_intake_g_dw_per_day", 7,
                           scope = "bird_small")

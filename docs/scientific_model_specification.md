@@ -110,11 +110,16 @@ This is a deliberate and important departure from how the source Word tables
 present results.
 
 The workbook derives a lower and an upper bound on **seeds/ha**, and separately
-a low and a high **TKW**. Inspection of the audited workbook
-(`Seed Inputs and EECs!AC:AR`, crop sheet rows 7–11 and 19–21) confirms that
-these two bounds are used as **independent axes**, not as a single paired
-scenario: at a given seeding-rate bound the workbook still computes seed counts
-using both the low and the high TKW.
+a low and a high **TKW**. These two bounds are used as **independent axes**,
+not as a single paired scenario: at a given seeding-rate bound the workbook
+still computes seed counts using both the low and the high TKW. The evidence
+for this is the crop sheets (rows 19–27 and 79–82) and the
+`Seeding Assumptions!J:M` block described in §4.2 below — **not**
+`Seed Inputs and EECs!AC:AR`, whose header row (`AC3:AR3`) is labelled only
+"Low Seeding Rate" / "High Seeding Rate" and carries no seed-weight axis at
+all. (An earlier version of this specification cited `AC:AR` for this claim;
+that citation did not support it and has been corrected here per the
+independent audit, `docs/independent_engine_audit.md` §2.4.)
 
 The Word tables then report a *range* across crops and across both axes, which
 loses the information about which combination produced each end of the range.
@@ -124,27 +129,83 @@ This model therefore evaluates the **full 2 × 2 grid** of
 combination that produced it. Ranges reported in regulatory tables are computed
 as summaries over that grid (§11), not hard-coded.
 
-### 4.2 Resolving seeds/ha
+### 4.2 Resolving seeds/ha: the full 2×2 grid, not a single bracket
 
-For each crop the workbook resolves seeds/ha as:
+**Corrected 2026-08-20 following the independent audit** (`docs/independent_engine_audit.md`
+§2.3, finding AUD-027). An earlier version of this section described a
+one-dimensional bracketing rule that does not match what the engine
+implements or what the audited workbook's crop-sheet calculations use. That
+description is retained below as a labelled aside because it is still the
+convention the **published Word tables** report; it is not the convention
+this model's row-level `seeds_per_ha` column follows.
+
+**What the engine actually computes, and what the audited workbook's
+`Seeding Assumptions!J:M` block computes, is a full 2×2 grid.** For each
+crop, at each corner of `seeding_rate_bound × seed_mass_bound`:
 
 ```
-seeds_per_ha_low  = seeding_rate_low_seeds_per_ha_direct   if supplied
+seeds_per_ha(rate_bound, mass_bound) =
+    seeding_rate_<rate_bound>_seeds_per_ha_direct        if supplied
+    else 1000 * (seeding_rate_<rate_bound>_kg_per_ha_low_tkw
+                 / (TKW_<mass_bound> / 1000))
+```
+
+i.e. the seed count at a given `rate_bound` is recomputed independently at
+**both** the low and the high TKW, giving four distinct seed counts per crop
+where the seeding rate is supplied on a mass basis — not two. This
+reproduces the workbook's `Seeding Assumptions!J:M` block cell for cell
+(columns `J`=low-rate÷low-weight, `K`=low-rate÷high-weight,
+`L`=high-rate÷low-weight, `M`=high-rate÷high-weight), and it is the
+convention the workbook's own crop-sheet feasibility calculations
+(`available_seed_within_msa`, `required_search_area`, etc.) use.
+
+**Consequence for a reader of `scenario_inputs`.** A row labelled
+`seeding_rate_bound = "low"` can carry a seed count well above what the
+*published Word tables* and this specification's own §11.1 summary call the
+"lower bound" — for winter wheat, 1,500,000 seeds/ha at `low`/`low_tkw`
+versus the 600,000 the outer bracket (`K`) reports. **Any table drawn from
+this engine must display `seed_mass_bound` alongside `seeding_rate_bound`**,
+or must be built from the grid's min/max (which do coincide exactly with the
+traditionally reported bounds — see below).
+
+**The historical bracket, still relevant for matching published tables:**
+
+```
+seeds_per_ha_low  (outer bracket, = grid column K)
+                  = seeding_rate_low_seeds_per_ha_direct   if supplied
                     else 1000 * (seeding_rate_low_kg_per_ha_high_tkw / (TKW_high / 1000))
 
-seeds_per_ha_high = seeding_rate_high_seeds_per_ha_direct  if supplied
+seeds_per_ha_high (outer bracket, = grid column L)
+                  = seeding_rate_high_seeds_per_ha_direct  if supplied
                     else 1000 * (seeding_rate_high_kg_per_ha_low_tkw / (TKW_low / 1000))
 ```
 
-The asymmetry is deliberate: the low bound converts the low mass rate using the
-**heaviest** seed (fewest seeds per kg) and the high bound converts the high
-mass rate using the **lightest** seed (most seeds per kg), so the pair brackets
-the plausible seed count. The extraction script records which basis was used per
-crop in `seeds_per_ha_low_basis` / `seeds_per_ha_high_basis`.
+This bracket is what `Seed Inputs and EECs!AC/AD` (the workbook's own
+summary columns) and the published Word tables report, and it is exactly
+the minimum and maximum of the engine's full grid — so any range computed
+across the grid is correct and matches the published bracket. The bracket
+values are retained, unused by the calculation engine, in
+`crop_seeding_parameters.csv` (`seeds_per_ha_low`/`_high` and their
+`_basis` columns) for cross-reference against published tables; they are
+read by the Shiny input module's display only, not by any function under
+`R/calculations`, `R/inputs` or `R/summaries`.
 
-**Verified against:** pearl millet lower 861,538 seeds/ha; oat upper 5,814,815;
-buckwheat upper 3,103,448; winter wheat lower 600,000 — all reproduced exactly
-(review checks BSC-CALC-016, 020, 021, 028).
+**Known defect in the source workbook itself, not in this model.** For
+crops whose seeding rate is supplied on a mass basis, the audited workbook
+is internally inconsistent about which "low bound" density it uses: on the
+buckwheat crop sheet (sheet `7`), cell `D7` reports the low broadcast
+surface density as 53.62 seeds/m² (derived from grid column `K`), while
+cells `J79` and `M20` on the **same sheet** compute the feasible seed pool
+and required search area from column `J` (68.97 seeds/m²). This model
+cannot match both; it consistently follows the `J`/`K`/`L`/`M`
+crop-sheet-feasibility convention. Which convention the assessment intends
+is a scientific judgement referred to the assessment team
+(`docs/independent_engine_audit.md`, finding AUD-031), not resolved here.
+
+**Verified against:** pearl millet lower (bracket) 861,538 seeds/ha; oat upper
+(bracket) 5,814,815; buckwheat upper (bracket) 3,103,448; winter wheat lower
+(bracket) 600,000 — all reproduced exactly by the grid's min/max (review
+checks BSC-CALC-016, 020, 021, 028; independent audit AUD-027).
 
 ---
 
@@ -203,8 +264,16 @@ Workbook form: `D_seed = C_seed / (1000000 / TKW)`, which is identical.
 R_field [g a.i./ha] = (C_seed [mg/kg] / 1000) * R_mass [kg seed/ha]
 ```
 
-The workbook pairs the low field rate with the low mass seeding rate computed
-at low TKW, and the high field rate with the high mass rate at high TKW.
+The workbook computes and reports **two** field rates per crop and rate
+level: `W` (low bound × low seed weight) and `X` (high bound × high seed
+weight). This model evaluates the field rate at **all four** corners of the
+§4.2 grid, since field rate is downstream of `seeding_rate_kg_per_ha`, which
+is itself resolved per grid corner. The two additional cells this produces
+(for barley: 32.130 and 34.968 g a.i./ha, at the `low/high_tkw` and
+`high/low_tkw` corners) are internally consistent and correctly derived by
+the same formula, but **have no counterpart in the audited source workbook**
+and must not be presented as workbook-reproduced values — only the `W4`/`X4`
+corners below carry that provenance (independent audit AUD-030).
 
 **Verified:** barley 300 mg/kg, 44.64 kg/ha → 13.392 g a.i./ha (`W4`).
 
@@ -430,6 +499,13 @@ Screening applies complete molar conversion of thiamethoxam to clothianidin
 C_clothianidin = C_thiamethoxam * (249.68 / 291.7) = C_thiamethoxam * 0.8560
 ```
 
+(0.8560 is a four-figure rounding of the exact ratio, 0.85594789…; the engine
+stores and uses the exact fraction, `STBAM_CLOTHIANIDIN_MOLAR_RATIO`, not the
+rounded constant. Independent audit AUD-041 confirmed this function has zero
+call sites anywhere in the production code, so this rounding note is
+informational only — the conversion is not reachable from any dose, RQ, or
+canonical dataset column.)
+
 The refined seed-ingestion assessment excludes a quantitative clothianidin
 contribution (`ASSUMPTION-004`). The engine implements the conversion as an
 isolated, clearly named screening function; it is never applied silently.
@@ -470,6 +546,17 @@ workbook sets "assume only surface seed accessible" to **N**, consistent with
 scenarios). The engine carries `surface_seed_only` as an explicit per-receptor
 flag; when `FALSE` the accessible pool is the full sown density `N_ha / 10000`
 rather than `S(0)`, and this is labelled in every output.
+
+**Time-dependence of the non-surface-restricted pool (documented following
+independent audit finding, `docs/independent_engine_audit.md` §6.3).** When
+`surface_seed_only = FALSE`, the accessible pool at time `t` is the full sown
+density decayed at the **surface-seed** half-life —
+`(N_ha / 10000) × 2^(-t/DT50_seed)` — not a constant, and not decayed at the
+residue half-life. This is a defensible modelling choice (the same physical
+disappearance process that removes visible surface seed presumably also
+removes buried seed over time) but it is a choice this specification did not
+previously state, and a reviewer could not have audited it from this document
+alone.
 
 **Verified:** wheat lower broadcast, small bird → 4200 seeds in 70 m² MSA,
 4134.86 % of daily diet available; buckwheat upper spring drill, medium bird →
@@ -576,9 +663,27 @@ override").
 
 The implementation is accepted only if:
 
-1. All 28 review calculation checks classified `MATCH` or
-   `MATCH_WITH_ROUNDING` reproduce within 1 × 10⁻⁶ relative tolerance of the
-   independent value.
+1. All 28 review calculation checks in
+   `inst/fixtures/bird_small_cereals_calculation_checks.csv`, classified
+   `MATCH` or `MATCH_WITH_ROUNDING`, reproduce within 1 × 10⁻⁶ relative
+   tolerance **of a value recomputed from the same exact inputs by this
+   engine** — not of the fixture file's own stored figure. **Corrected
+   2026-08-20 following independent audit finding AUD-099**: several
+   fixture values were themselves computed from pre-rounded intermediates
+   in the original manual reconstruction and cannot meet a 1×10⁻⁶ tolerance
+   against an exact recomputation (e.g. `BSC-CALC-013` records RQ 1.767981
+   from a rounded EDE of 76.2, against the exact chain's 1.767553 — a
+   relative difference of 2.4×10⁻⁴; `BSC-CALC-019` similarly at 6×10⁻⁵).
+   The engine's exact values are correct in both cases; the fixture's
+   stored figures are display-precision checks, not the tolerance
+   reference. **This criterion is not yet machine-enforced**: no code
+   currently reads this fixture file (it is copied into `inst/fixtures/`
+   by `scripts/extract_reference_data.py` and named in four test comments,
+   but no automated check compares the engine's output against every row).
+   Implementing that automated comparison — recomputing each fixture's
+   scenario from its exact inputs and asserting agreement, rather than
+   comparing to the fixture's own rounded stored value — is an open,
+   recommended follow-up; see `PROJECT_STATE.md`.
 2. The 4 checks classified `MATERIAL_DISCREPANCY` reproduce the **expected**
    value, not the erroneous published value, and are asserted as such. These are
    confirmed Word display/transfer errors, not workbook or model errors
@@ -663,3 +768,4 @@ raise an error:
 | Version | Date | Change |
 |---|---|---|
 | 1.0.0 | 2026-08-19 | Initial specification reconstructed from the audited Small Cereals workbook and the Phase 3A review record. |
+| 1.1.0 | 2026-08-20 | Corrections following the independent adversarial audit (`docs/independent_engine_audit.md`; zero confirmed or potential numerical errors found). §4.2 rewritten to describe the implemented 2×2 seed-count grid rather than a one-dimensional bracket (the code was correct; the specification was not). §4.1's workbook citation corrected. §5.4 notes the engine's two additional, non-workbook-sourced field-rate cells. §9.7 adds a rounding note. §10.1 documents the time-dependence of the non-surface-restricted (mammal) accessible pool. §13's acceptance criterion reworded to compare against exact recomputation rather than the fixture file's own rounded values, and marked not yet machine-enforced. Three engine robustness defects found by the audit (`diet_fraction = 0` crash, `clear_override()` default-scope failure, stale mass rate after a `seeds_per_ha` override) were corrected in code and covered by new regression tests; see `PROJECT_STATE.md` and `docs/model_validation_report.md` for detail. |

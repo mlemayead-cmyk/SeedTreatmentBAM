@@ -8,11 +8,13 @@ confirmed by a process that didn't also write the code."
 
 ## Layer 1: automated test suite
 
-`tests/testthat/` — 9 files, 424 assertions, 0 failures (confirmed
+`tests/testthat/` — 9 files, **448 assertions, 0 failures** (confirmed
 2026-08-20, this recovery session, after correctly loading all three
 engine layers — an earlier same-session run under-loaded the `shiny` layer
 and produced spurious "function not found" errors; re-run with all three
-layers loaded and it is a clean pass).
+layers loaded and it is a clean pass). 424 of these predate this session;
+24 new assertions were added the same day to cover the three code fixes
+made in response to the independent audit (Layer 3 below).
 
 | File | Assertions | Covers |
 |---|---:|---|
@@ -45,28 +47,135 @@ shallowly.
 
 ## Layer 3: independent adversarial audit
 
-**In progress as of 2026-08-20.** A separate review process (not the effort
-that wrote the engine or this report) is independently re-deriving results
-for a representative set of scenarios and edge cases, from the
-specification and raw reference/workbook data only, before consulting the
-engine's own source code. It specifically targets:
+**Complete, 2026-08-20.** A separate review process — not the effort that
+wrote the engine, the specification, or this report — independently
+re-derived results for a representative set of scenarios and edge cases
+from the specification and raw reference/workbook data, computing every
+value from scratch before ever reading the engine's own source code. Full
+detail: `docs/independent_engine_audit.md`; row-level detail:
+`audit/independent_engine_findings.csv`.
 
-- The independent 2x2 agronomic bound grid and its deliberately asymmetric
-  TKW pairing (specification §4.1-4.2).
-- Isolation of the screening clothianidin conversion from the refined
-  exposure chain (specification §9.7).
-- Non-interference of MSA/feasibility outputs with regulatory dose/RQ
-  (specification §10.3).
-- Separation of the two dissipation half-lives (specification §7).
-- A unit-error sweep (kg/g/mg, ha/m2, %/fraction, dry/fresh mass).
-- Numeric invariants and edge cases (zero rate, zero diet fraction, doubled
-  concentration, DT50 = Inf, hidden coupling between crops).
+**Method.** Four independent lines of evidence: (1) a from-scratch Python
+re-implementation of the full calculation chain, written only from the
+specification's equations, never importing or calling any R engine code;
+(2) direct static reading of the primary audited source workbook (OOXML
+zip, no Excel, no COM, no macros — SHA-256 verified unchanged before and
+after); (3) the live R engine, run for comparison only after (1) and (2)
+were computed; (4) the prior independently-reconstructed fixture set
+(`inst/fixtures/`) as a third opinion.
 
-Results will be recorded in `docs/independent_engine_audit.md` and
-`audit/independent_engine_findings.csv`, with findings classified `PASS`,
-`CONFIRMED_ERROR`, `POTENTIAL_ERROR`, `ROBUSTNESS_ISSUE`,
-`DOCUMENTATION_GAP`, or `REQUIRES_HUMAN_REVIEW`. **This report's overall
-verdict (final section) is deferred until that file exists.**
+**Result: 100 items checked. 89 PASS. Zero `CONFIRMED_ERROR`. Zero
+`POTENTIAL_ERROR`.** The remainder: 6 `DOCUMENTATION_GAP`, 4
+`ROBUSTNESS_ISSUE`, 1 `REQUIRES_HUMAN_REVIEW`.
+
+| Status | Count | Disposition |
+|---|---:|---|
+| `PASS` | 89 | No action |
+| `DOCUMENTATION_GAP` | 6 | **Corrected** — specification updated 2026-08-20, see its change-control log (v1.1.0) |
+| `ROBUSTNESS_ISSUE` | 4 | **Corrected in code** and covered by new regression tests, see below |
+| `REQUIRES_HUMAN_REVIEW` | 1 | Referred to the assessment team — a defect in the *source workbook itself* (see below), not something this project can resolve |
+| `CONFIRMED_ERROR` | 0 | — |
+| `POTENTIAL_ERROR` | 0 | — |
+
+### What the audit confirmed is correct
+
+Every unit conversion in the chain (kg↔g↔mg, ha↔m², %↔fraction, TKW↔seed
+mass, mass↔count seeding rate, both rate-unit directions) is exact to
+machine precision, with no factor-of-1000 error and no ha/m² slip found.
+Dose per seed, field rate, surface seed density, food ingestion rate, seeds
+required per day, EDE, RQ and duration above an effects metric all
+reproduce the audited workbook's own cached values to 13-16 significant
+figures. `RQ = dose / effects metric` is bit-for-bit exact (`identical()`
+`TRUE`) across all 125,280 time-course rows checked. The two dissipation
+half-lives are genuinely independent (verified in the workbook's named
+ranges, the reference data, the code, and by override experiment). The
+screening clothianidin conversion has zero call sites in production code —
+stronger than "isolated," it is simply unreachable. MSA feasibility
+provably never caps regulatory dose or RQ (verified by code reading,
+exhaustive search, and an override experiment giving bit-identical doses).
+No dry-to-fresh mass conversion is applied, matching the workbook, which
+holds moisture data and deliberately does not use it either.
+
+### The one substantive finding: `seeding_rate_bound` labelling (AUD-027)
+
+Not a numerical error. Specification §4.2 (pre-correction) described a
+one-dimensional bound with an asymmetric TKW pairing; the engine actually
+implements — and the audited workbook's `Seeding Assumptions!J:M` block
+also implements — a full 2×2 grid where the seed count depends on both the
+seeding-rate bound and the seed-mass bound. **The code is correct; the
+specification was wrong**, and has been corrected (see the specification's
+own change-control log). Consequence: a `scenario_inputs` row labelled
+`seeding_rate_bound = "low"` can carry a seed count up to 2.5× the figure
+the published Word tables call the "lower bound" (winter wheat: 1,500,000
+vs. 600,000). **No dose, EDE, RQ, feasible dietary fraction, or required
+search area is affected** — the audit proved this algebraically and
+confirmed it numerically across all 125,280 rows. Only raw seed-count
+columns (`seeds_per_ha`, `seeds_per_m2`, `initial_surface_seeds_per_m2`,
+`area_per_surface_seed_m2`, `available_seeds_within_msa`,
+`seeds_required_full_diet`) are affected, and the grid's min/max coincide
+exactly with the historically reported bounds. **Any regulatory table drawn
+from `scenario_inputs` must display `seed_mass_bound` alongside
+`seeding_rate_bound`.**
+
+### Four robustness defects — corrected
+
+All four were fixed in code on 2026-08-20 and are covered by new regression
+tests (448 total assertions now pass, up from 424; see Layer 1 above).
+
+1. **`diet_fraction = 0` crashed `build_scenario_summary()`** (AUD-088),
+   even though specification invariant 6 names it a valid input.
+   `days_diet_fraction_feasible()` now treats a zero target as trivially,
+   permanently feasible (`Inf`) instead of rejecting it.
+   `R/calculations/05_feasibility.R`; test:
+   `test-05-boundaries-and-errors.R`, *"a zero target dietary fraction is
+   trivially feasible forever (AUD-088)"*.
+2. **`clear_override(params, parameter)` always errored** with its
+   documented default `scope = NULL` (AUD-095) — a zero-length logical from
+   comparing a character vector against `NULL` collapsed the whole
+   selection vector. Now builds the scope-match vector explicitly at full
+   length regardless of `scope`. `R/inputs/11_parameter_set.R`; test:
+   `test-05-boundaries-and-errors.R`, *"clear_override(params, parameter)
+   works with its documented default scope (AUD-095)"*.
+3. **A `seeds_per_ha` override left `seeding_rate_kg_per_ha` (and hence
+   `field_rate_g_ai_per_ha`) stale** (AUD-094), silently violating the
+   row's own `seeds_per_ha × TKW / 1e6 = seeding_rate_kg_per_ha` identity.
+   The mass-basis default now recomputes from the effective seed count
+   whenever the seed count is overridden and the mass rate is not — the
+   same pattern already used for body-weight → food-intake propagation.
+   `R/summaries/20_scenario_inputs.R`; test:
+   `test-07-scenario-builders.R`, *"a seeds_per_ha override propagates into
+   the mass seeding rate (AUD-094)"*.
+4. **A global-scope dissipation-half-life override silently rewrites every
+   crop** (AUD-093). This is the documented fallback behaviour of
+   `effective_value()`, not a bug, but it was undocumented as a hazard.
+   Documented in `docs/user_guide.md`'s Editable-assumptions section; no
+   code change (fixing it would mean *removing* a working, arguably
+   correct fallback design — left for a deliberate future decision if the
+   interface should scope these two fields per-crop instead).
+
+### One item referred to the assessment team, not resolved here (AUD-031)
+
+For crops whose seeding rate is supplied on a mass basis, the **audited
+source workbook itself** reports two different "low bound" surface seed
+densities on the same crop sheet (buckwheat: 53.62 seeds/m² in `7!D7`
+versus 68.97 seeds/m² implied by `7!J79`/`7!M20`). This model cannot match
+both and consistently follows the crop-sheet feasibility convention.
+**This is a defect in the source document, not in this model**, and which
+convention the assessment intends is a scientific judgement outside this
+project's scope.
+
+### One open process gap, not yet closed (AUD-099)
+
+Specification §13 names 28 fixture calculation checks as an acceptance
+criterion; no code currently reads that fixture file, so the criterion is
+not machine-enforced. The specification wording has been corrected (the
+criterion now correctly says "compare against a value recomputed from
+exact inputs," not the fixture's own rounded stored figure — several
+fixture values cannot meet 1e-6 tolerance against an exact recomputation
+purely because they were manually computed from rounded intermediates, and
+the engine's exact values are the correct ones in those cases). **Actually
+implementing the automated fixture-driven comparison remains an open,
+recommended follow-up** — see `PROJECT_STATE.md`.
 
 ## Layer 4: manual acceptance testing
 
@@ -90,9 +199,36 @@ not had the same independent verification.
 
 ## Overall verdict
 
-**Deferred pending Layer 3.** Provisional statement: the calculation engine
-is internally consistent, passes its own test suite, and reproduces a
-hand-worked example to machine precision. It has not yet been confirmed by
-a process that didn't also write it. Do not rely on this model's output for
-any regulatory purpose until this report is updated with a completed Layer
-3 and, ideally, a completed Layer 4.
+**The quantitative core of this engine is sound.** An independent process
+that did not write the code, the specification, or the tests re-derived
+100 representative calculations from scratch — agronomic conversions,
+exposure, dose, risk quotient, time-dependent dissipation, and MSA
+feasibility — and found **zero confirmed or potential numerical errors**.
+For the outputs that matter most for a regulatory judgement
+(`dose_mg_kg_bw_day`, `rq`, `days_above_loc`, `threshold_diet_fraction_pct`),
+the audit found no error of any kind, checked against the audited source
+workbook's own cached values to 13-16 significant figures where a workbook
+cell existed to check against.
+
+What was found and has now been corrected: one specification section that
+described different (and less internally coherent) behaviour than the code
+actually implements — the code was right, the document was wrong, and the
+document is now fixed; and four robustness defects (crashes or stale
+values on specific override/edge-case paths, none of them silent numerical
+errors), three of which are now fixed in code with new regression tests,
+the fourth documented as an intentional-but-previously-unwarned design
+choice.
+
+**What remains before this can be relied on for a regulatory submission:**
+Layer 4 (a human reviewer's own manual acceptance testing, using
+`docs/manual_acceptance_test.md`) has not yet been performed. The
+fixture-driven automated acceptance check named in specification §13 is
+not yet implemented (AUD-099). One source-workbook internal inconsistency
+(AUD-031) needs a scientific judgement call from the assessment team, not
+an engineering fix. Five of the six crop workbooks (`small_cereals_msa`,
+`canola`, `cucurbits`, `legumes_deep`, `legumes_shallow`) have not received
+the same 1,115-check independent numeric audit that `small_cereals` did in
+the source review project — the calculation *engine* code is identical and
+now independently audited across all of them structurally, but the
+*underlying workbook data* for those five carries less individual scrutiny
+than Small Cereals. See "Crop coverage" above.

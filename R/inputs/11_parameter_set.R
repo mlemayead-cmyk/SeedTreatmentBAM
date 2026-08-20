@@ -126,7 +126,8 @@ set_override <- function(params, parameter, value, scope = "global",
 #'
 #' @param params An `stbam_parameter_set`.
 #' @param parameter Parameter to clear, or `NULL` to reset everything.
-#' @param scope Scope to clear.
+#' @param scope Scope to clear, or `NULL` (the default) to clear `parameter`
+#'   at every scope.
 #' @return The updated parameter set.
 #' @export
 clear_override <- function(params, parameter = NULL, scope = NULL) {
@@ -134,8 +135,19 @@ clear_override <- function(params, parameter = NULL, scope = NULL) {
     params$overrides <- empty_override_table()
     return(params)
   }
-  keep <- !(params$overrides$parameter == parameter &
-              (is.null(scope) | params$overrides$scope == scope))
+  # Built as two explicit, always-full-length logical vectors rather than one
+  # expression combining `is.null(scope)` with a vector comparison: comparing
+  # a character vector against NULL yields a zero-length result in R, which
+  # previously collapsed the whole `keep` vector to length 0 and made this
+  # documented `scope = NULL` call unusable (tibble subsetting rejects a
+  # zero-length logical index).
+  matches_parameter <- params$overrides$parameter == parameter
+  matches_scope <- if (is.null(scope)) {
+    rep(TRUE, nrow(params$overrides))
+  } else {
+    params$overrides$scope == scope
+  }
+  keep <- !(matches_parameter & matches_scope)
   params$overrides <- params$overrides[keep, , drop = FALSE]
   params
 }

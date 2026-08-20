@@ -34,6 +34,19 @@ booleans (`spring_seeded`, `fall_seeded`, `broadcast_seeded`,
 **A crop appearing here does not mean it can be modelled for exposure** —
 see `scenario_definitions.csv` below.
 
+**`seeds_per_ha_low` / `seeds_per_ha_high` / their `_basis` columns are not
+read by the calculation engine** (independent audit finding AUD-029). They
+encode the historical outer-bracket convention described in
+`docs/scientific_model_specification.md` §4.2 (equal to the min/max of the
+engine's actual 2×2 seed-count grid, and useful for cross-checking against
+the published Word tables), but `R/calculations`, `R/inputs` and
+`R/summaries` all derive `seeds_per_ha` per grid corner instead. Only the
+Shiny input module's display and one test assertion read these two columns
+directly. Comparing them to the engine's own `scenario_inputs$seeds_per_ha`
+output will show apparent mismatches for any crop whose seeding rate is
+supplied on a mass basis — this is the same definitional difference, not an
+error in either place.
+
 ### `scenario_definitions.csv`
 
 One row per crop x rate-level x workbook combination with an actual

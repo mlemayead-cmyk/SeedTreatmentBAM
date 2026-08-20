@@ -17,6 +17,31 @@ test_that("a zero dietary fraction produces zero exposure and zero seeds", {
   expect_equal(seeds_required_per_day(5.078770266809547, 0.0248, 0), 0)
 })
 
+test_that("a zero target dietary fraction is trivially feasible forever (AUD-088)", {
+  # Independent audit finding: build_scenario_summary() aborted on
+  # diet_fractions = 0, even though specification invariant 6 names p_diet =
+  # 0 as valid and build_daily_timecourse() already accepted it correctly.
+  # A target of 0 requires no seed at all, so it must be obtainable
+  # indefinitely, regardless of how much seed is actually available.
+  expect_equal(days_diet_fraction_feasible(0, 0, 14), Inf)
+  expect_equal(days_diet_fraction_feasible(61.527, 0, 14), Inf)
+  expect_equal(days_diet_fraction_feasible(0, 0, Inf), Inf)
+
+  baseline <- load_baseline()
+  params <- parameter_set(baseline)
+  inputs <- build_scenario_inputs(params, crops = "Barley",
+                                  workbooks = "small_cereals",
+                                  rate_levels = "high",
+                                  planting_methods = "broadcast")
+  summary <- expect_no_error(
+    build_scenario_summary(params, inputs, diet_fractions = c(1, 0))
+  )
+  zero_rows <- summary[summary$diet_fraction == 0, ]
+  expect_true(nrow(zero_rows) > 0)
+  expect_true(all(zero_rows$days_assumed_diet_feasible == Inf))
+  expect_true(all(zero_rows$initial_dose_mg_kg_bw_day == 0))
+})
+
 test_that("zero surface seed gives zero availability and infinite search area", {
   expect_equal(surface_seed_initial(0, 1), 0)
   expect_equal(available_seed_within_msa(0, 70), 0)
@@ -29,6 +54,34 @@ test_that("day zero returns the initial condition exactly", {
   expect_equal(surface_seed_over_time(180, 0, 14), 180)
   expect_equal(ai_per_seed_over_time(0.00744, 0, 10), 0.00744)
   expect_equal(daily_dose_over_time(76.18, 0, 10), 76.18)
+})
+
+test_that("clear_override(params, parameter) works with its documented default scope (AUD-095)", {
+  # Independent audit finding: the documented call clear_override(params,
+  # "residue_dt50_days") -- scope defaulting to NULL, meaning "any scope" --
+  # always raised "Logical subscript `keep` must be size 1 or 2, not 0."
+  baseline <- load_baseline()
+  params <- parameter_set(baseline)
+  params <- set_override(params, "residue_dt50_days", 21, scope = "global",
+                         source = "Test")
+  params <- set_override(params, "surface_seed_fraction", 0.5,
+                         scope = "broadcast", source = "Test")
+  expect_equal(nrow(params$overrides), 2L)
+
+  cleared <- expect_no_error(clear_override(params, "residue_dt50_days"))
+  expect_equal(nrow(cleared$overrides), 1L)
+  expect_false("residue_dt50_days" %in% cleared$overrides$parameter)
+  expect_true("surface_seed_fraction" %in% cleared$overrides$parameter)
+
+  # Clearing a parameter with no matching override is a documented no-op,
+  # not an error, and must not touch unrelated overrides.
+  no_op <- expect_no_error(clear_override(cleared, "msa_m2"))
+  expect_equal(nrow(no_op$overrides), 1L)
+
+  # An explicit scope still narrows correctly, as it did before this fix.
+  scoped <- clear_override(params, "surface_seed_fraction", scope = "broadcast")
+  expect_equal(nrow(scoped$overrides), 1L)
+  expect_true("residue_dt50_days" %in% scoped$overrides$parameter)
 })
 
 test_that("very long simulations remain finite and monotone", {

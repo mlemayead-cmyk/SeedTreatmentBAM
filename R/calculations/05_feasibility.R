@@ -70,30 +70,39 @@ maximum_feasible_diet_fraction <- function(surface_seeds_per_m2, msa_m2,
 #'
 #' @param initial_max_feasible_diet_fraction Maximum feasible dietary fraction
 #'   at sowing.
-#' @param target_diet_fraction Dietary fraction of interest, 0-1.
+#' @param target_diet_fraction Dietary fraction of interest, 0-1. A target of
+#'   0 requires no seed at all and is trivially obtainable for as long as the
+#'   scenario is modelled (specification invariant 6 names `p_diet = 0` as a
+#'   valid input; this function must accept it on the same terms as every
+#'   other function in the exposure chain).
 #' @param surface_seed_dt50_days Surface-seed disappearance half-life, days.
 #' @return Days until the target fraction is no longer obtainable. 0 if it is
-#'   never obtainable; `Inf` if surface seed does not decline.
+#'   never obtainable; `Inf` if surface seed does not decline, or if the
+#'   target dietary fraction is 0.
 #' @export
 days_diet_fraction_feasible <- function(initial_max_feasible_diet_fraction,
                                         target_diet_fraction,
                                         surface_seed_dt50_days) {
   check_numeric(initial_max_feasible_diet_fraction,
                 "initial_max_feasible_diet_fraction", min = 0)
-  check_numeric(target_diet_fraction, "target_diet_fraction", min = 0, max = 1,
-                exclusive_min = TRUE)
+  check_numeric(target_diet_fraction, "target_diet_fraction", min = 0, max = 1)
   check_numeric(surface_seed_dt50_days, "surface_seed_dt50_days", min = 0,
                 exclusive_min = TRUE, allow_inf = TRUE)
   check_recyclable(initial_max_feasible_diet_fraction, target_diet_fraction,
                    surface_seed_dt50_days)
 
-  ratio <- initial_max_feasible_diet_fraction / target_diet_fraction
-  stbam_ifelse(
+  zero_target <- target_diet_fraction == 0
+  # Divide by 1 instead of 0 for a zero target so the ratio is always
+  # well-defined; the zero_target branch below discards it regardless.
+  ratio <- initial_max_feasible_diet_fraction /
+    stbam_ifelse(zero_target, 1, target_diet_fraction)
+  result <- stbam_ifelse(
     ratio > 1,
     stbam_ifelse(is.infinite(surface_seed_dt50_days), Inf,
                  surface_seed_dt50_days * log2(pmax(ratio, 1))),
     0
   )
+  stbam_ifelse(zero_target, Inf, result)
 }
 
 #' Is the assumed dietary fraction physically attainable?

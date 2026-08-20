@@ -139,10 +139,24 @@ build_scenario_inputs <- function(params, crops = NULL, workbooks = NULL,
             scope = paste0(scenario$crop, ":", rate_bound),
             default = seeding$seeds_per_ha
           )
+          # A seeds_per_ha override must propagate into the mass-basis
+          # seeding rate, otherwise the row's own round-trip identity
+          # (seeds_per_ha x TKW / 1e6 = seeding_rate_kg_per_ha, specification
+          # section 5.2) would be silently violated -- the same reasoning
+          # that makes resolve_receptors() recompute food intake whenever
+          # body weight is overridden, rather than leaving it stale. Only
+          # applies when seeding_rate_kg_per_ha has NOT also been overridden
+          # directly at this scope; an explicit override of the mass rate
+          # itself still wins via effective_value() below.
+          mass_default <- if (identical(seeds_ha$status, "ASSESSMENT_DEFAULT")) {
+            seeding$seeding_rate_kg_per_ha
+          } else {
+            mass_per_ha_from_seeds(seeds_ha$value, tkw)
+          }
           mass_ha <- effective_value(
             params, "seeding_rate_kg_per_ha",
             scope = paste0(scenario$crop, ":", rate_bound),
-            default = seeding$seeding_rate_kg_per_ha
+            default = mass_default
           )
 
           loading <- treatment_loading(rate$value, scenario$application_rate_unit,

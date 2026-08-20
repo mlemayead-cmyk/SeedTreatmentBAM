@@ -50,6 +50,16 @@ current overrides" table at the bottom shows baseline vs. current for eight
 key summary quantities, so a change's consequence is visible immediately
 rather than hidden in a plot you have to go find.
 
+**Dissipation-half-life overrides apply globally, to every crop at once —
+this is by design, not a bug.** The two "Dissipation" fields (surface-seed
+and residue DT50) are the only controls in this panel scoped `"global"`
+rather than to one crop or method. Overriding either one changes that
+half-life for every scenario currently displayed, immediately. This was
+specifically checked in the independent audit (finding AUD-093): a
+global-scope override is not accidentally narrow, and there is currently no
+in-app warning beyond this note, so double-check your crop/scenario
+selection before reading results after changing either dissipation field.
+
 **Sub-tab: Override register.** Every active override, with its scope,
 baseline value, new value, status, and source. Export the current scenario
 (a small CSV of just the overrides — the baseline itself is never
