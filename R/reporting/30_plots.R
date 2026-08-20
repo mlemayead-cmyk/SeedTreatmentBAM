@@ -294,7 +294,8 @@ plot_risk_quotient <- function(timecourse, colour_by = "diet_fraction",
                       paste(metric_names, collapse = ", ")),
     y_lab = "Risk quotient (dose / effects metric)",
     colour_by = colour_by, log_y = log_y,
-    threshold = 1, threshold_label = "RQ = 1"
+    threshold = STBAM_DEFAULT_LOC,
+    threshold_label = sprintf("RQ = %s", fmt_sig(STBAM_DEFAULT_LOC))
   )
 }
 

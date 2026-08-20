@@ -1,21 +1,26 @@
 # Model validation report
 
 **Status as of 2026-08-20: core engine independently audited and clean
-(see Layer 3). A new feature (maximum obtainable exposure, §"Feature
-addition" below) has since been added and is undergoing its own
-independent review, not yet complete.** Treat the core engine's
-"validated" as meaning independently confirmed by a process that did not
-write the code; treat the new feature as implemented and self-tested only
-until its own review lands.
+(Layer 3). The maximum-obtainable-exposure feature has also completed its
+own independent adversarial review** (§"Feature addition" below):
+19 items checked, 8 PASS, 3 CONFIRMED_ERROR (all three fixed), 2
+POTENTIAL_ERROR (both addressed), 4 ROBUSTNESS_ISSUE (partially addressed),
+3 DOCUMENTATION_GAP, 1 REQUIRES_HUMAN_REVIEW (open — a scientific
+judgement call, not an engineering fix; see below). The calculation core
+of the new feature — the double-counting, MSA-policy, food-requirement-cap
+and units checks — passed outright; every defect found was in reporting
+(a footnote/sidebar stating the wrong number) or robustness (input
+validation), not in the arithmetic.
 
 ## Layer 1: automated test suite
 
-`tests/testthat/` — 11 files, **556 assertions, 0 failures** (confirmed
-2026-08-20). 424 predate this session's recovery work; a further 24 were
-added for the three engine robustness fixes (Layer 3 below); the remaining
-assertions cover the maximum-obtainable-exposure feature (calculation,
-MSA policy, figure metadata/footnotes, plotting, and a live Shiny
-reactive-graph test) added afterward.
+`tests/testthat/` — 12 files, **587 assertions, 0 failures** (confirmed
+2026-08-20, final run of this session). 424 predate this session's
+recovery work; a further 24 were added for the three engine robustness
+fixes (Layer 3 below); the remaining assertions cover the
+maximum-obtainable-exposure feature (calculation, MSA policy, figure
+metadata/footnotes, plotting, a live Shiny reactive-graph test, and
+regression coverage for every confirmed independent-review finding).
 
 | File | Assertions | Covers |
 |---|---:|---|
@@ -214,15 +219,89 @@ canonical columns on `daily_timecourse`, a summary/annotation layer, figure
 metadata/footnote generation for self-contained exported figures, plotting
 functions, and a new Shiny tab.
 
-This feature has its own test coverage (part of the 556 assertions above,
-including a live Shiny reactive-graph test) but **has not yet completed its
-own independent adversarial review** — that review was launched
-immediately after implementation and, per the same standard applied to the
-core engine, was performed by a process that did not write the feature.
-Its result will be appended here once complete; until then, treat this
-specific feature's correctness as implemented-and-self-tested, not yet
-independently confirmed, distinct from the core engine's audited status
-above.
+**Independent adversarial review complete.** Full report:
+`docs/max_obtainable_exposure_review.md`. Method matched the core-engine
+audit: independent re-derivation, hand recomputation of the full unit
+chain, fine-grid time courses, an independently-written root-finder to
+check the closed-form crossing-day solution, live `shiny::testServer()`
+probes, and deliberate adversarial/malformed inputs — not code reading
+alone.
+
+**19 items checked: 8 PASS, 3 CONFIRMED_ERROR, 2 POTENTIAL_ERROR,
+4 ROBUSTNESS_ISSUE, 3 DOCUMENTATION_GAP, 1 REQUIRES_HUMAN_REVIEW.**
+
+What passed outright: no double-counting of the two first-order processes
+(verified by empirical half-life regression: 10.000 d abundant-phase,
+5.83333 d seed-limited-phase, exactly matching the residue and combined
+DT50s); the MSA policy is applied correctly across all 27
+receptor×duration×role combinations and survives two adversarial attempts
+to reopen the bug it exists to prevent (a hostile caller-supplied
+receptors table, and the global Shiny MSA toggle set to "long"); the
+food-requirement cap holds exactly even with an artificially abundant
+seed supply; every unit conversion checked by hand to relative error
+≤ 1.2e-16; and Codex's independently-derived exact closed-form solution
+for the maximum-obtainable RQ's LOC-crossing day was re-derived from
+scratch by the reviewer and matched against an independent root-finder to
+≤ 2.5e-13 days across 282 receptor/metric rows.
+
+**Three confirmed errors, all fixed:**
+
+1. **Mammal footnote/figure metadata reported the wrong seed density.**
+   For mammals (`surface_seed_only = FALSE`, `ASSUMPTION-020`), the
+   maximum-obtainable calculation correctly uses the full sown seed
+   density, but the footnote stated only the much smaller surface-only
+   figure — a 30× discrepancy in the worked example (15.5 vs. 470
+   seeds/m²) that defeated the feature's self-contained-interpretation
+   requirement. Fixed: `build_figure_metadata()` now carries
+   `accessible_pool_basis`/`accessible_seeds_per_m2`, and the footnote
+   states both figures explicitly whenever they differ, citing
+   `ASSUMPTION-020`. Regression test:
+   `test-12-max-obtainable-review-fixes.R`.
+2. **Shiny "Current assumptions" sidebar showed only the first receptor's
+   MSA.** A figure containing a large-bird panel at 140 m² showed "70 m²"
+   in the sidebar (MSA is not shared across receptor sizes; body weight
+   and food requirement are not either). The exported figure caption was
+   always correct — only the on-screen sidebar understated it. Fixed:
+   the sidebar now lists every receptor's own MSA, term, body weight and
+   food requirement.
+3. **`plot_exposure_processes()` panels A/C were inconsistent with panel D
+   for mammals** (a defect in Codex's own process-explanation figure; not
+   this session's code). No affected figure was ever exported (the static
+   figure batch is bird-only), and it does not affect the calculation
+   engine.
+
+**Two potential errors, addressed:** an `msa_m2` override was found to
+silently collapse the mammal short-/long-term distinction while the
+footnote continued to cite `MAIN-P000209` as its basis — the footnote now
+states plainly when a shown MSA value is a user override and that the
+assessment-policy attribution does not apply to it. `STBAM_DEFAULT_LOC`
+was found not to be honoured end-to-end (harmless today — no registered
+metric uses a LOC other than 1) — fixed so every "above LOC" calculation
+now uses the same threshold.
+
+**Four robustness issues, partially addressed:** the single-scenario plot
+functions now reject mixed scenario/receptor/metric input rather than
+silently mislabelling a figure; missing `metadata_by_receptor` entries now
+fail loudly rather than degrading to a raw internal id. Two lower-severity
+items remain open (not currently reachable through the Shiny UI or the
+static figure script): `duration_above_max_obtainable_rq()` does not
+reject a physically-impossible `max_obtainable_rq > conditional_rq` input,
+and a caller who hand-edits a receptors table gets an internally
+inconsistent row for the MSA specifically (arguably correct policy
+behaviour, but silent).
+
+**One item requires a subject-matter judgement, not an engineering
+fix — flagged, not resolved by either implementing session:** for
+mammals, the maximum-obtainable calculation assumes access to 100% of
+sown seed (including drilled/buried seed) within the applicable search
+area, declining at the *surface*-seed disappearance rate. This is
+inherited faithfully from the pre-existing engine's `ASSUMPTION-020`, not
+a new error — but this feature promotes its consequence from a diagnostic
+flag to a headline "maximum obtainable RQ" number. Whether a mammal can
+realistically access buried seed within its MSA, and whether the surface
+DT50 is the right disappearance rate for buried seed, needs a subject
+matter expert's confirmation before a mammal maximum-obtainable figure is
+relied on for anything consequential.
 
 ## Overall verdict
 

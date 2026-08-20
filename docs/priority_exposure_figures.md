@@ -8,6 +8,49 @@ baseline parameters. The conventional conditional dietary RQ is preserved and
 shown separately from the maximum exposure obtainable from accessible treated
 surface seed within the applicable maximum search area (MSA).
 
+## What the figures are presenting
+
+The main acute and chronic figures compare two different exposure questions
+through time for small, medium and large birds:
+
+- **100% treated-seed diet** is the conventional conditional RQ. It asks what
+  the RQ would be if the bird obtained its entire daily dry-weight food
+  requirement as treated seed. This curve is not capped by the amount of seed
+  physically available in the field.
+- **Maximum obtainable within MSA** asks how much of that exposure the bird
+  could actually obtain from treated surface seed present within its applicable
+  maximum search area. Treated-seed consumption is capped at the smaller of
+  the bird's food requirement and the seed available within the MSA.
+- The horizontal dashed line is the level of concern, **RQ = 1**. A curve above
+  the line exceeds the applicable effects metric; a curve below it does not.
+- The three panels are the small, medium and large bird receptors. Their RQ
+  axes are allowed to differ so each curve remains readable; the caption states
+  this explicitly. Compare numerical axis labels, not only apparent line height.
+
+When the two main curves overlap, enough treated seed is available within the
+MSA to support the conditional 100% diet. When the maximum-obtainable curve is
+lower, field availability—not the assumed dietary calculation—is limiting
+exposure. Both curves decline as residue dissipates; after seed becomes limiting,
+the maximum-obtainable curve also reflects surface-seed disappearance.
+
+The four-panel process figure explains that divergence:
+
+- **A — Surface seeds remaining:** treated seeds per m² decline at the
+  surface-seed disappearance DT50.
+- **B — Residue per seed:** mg a.i. per seed declines independently at the
+  residue DT50.
+- **C — Surface active-ingredient loading:** mg a.i./m² is the product of the
+  two declining quantities.
+- **D — Exposure feasibility:** available seeds within each bird's MSA divided
+  by seeds required for a 100% diet. A value of 1 means a full treated-seed diet
+  is obtainable; below 1, exposure is seed-limited.
+
+The optional dietary-fraction figures show conventional RQ curves for assumed
+1%, 5%, 10%, 25%, 50% and 100% treated-seed diets. They do **not** establish
+that those fractions are obtainable. Their decline is driven by residue
+dissipation per seed; obtainability is evaluated in the main and process
+figures.
+
 ## Command
 
 Run from the project root:
@@ -42,7 +85,7 @@ selection basis are recorded in
 remain in `priority_exposure_summary.csv` and `.xlsx`.
 
 The static figure set uses the bird acute screening metric (43.1 mg a.i./kg
-bw/day) and bird chronic screening metric (7.78 mg a.i./kg bw/day), exported as
+bw/d) and bird chronic screening metric (7.78 mg a.i./kg bw/d), exported as
 separate one-row, three-receptor small multiples. The full summary also retains
 all canonical bird refined-additional metrics and their endpoint provenance.
 

@@ -187,6 +187,32 @@ mod_max_obtainable_server <- function(id, baseline, inputs, results) {
       meta_list <- metadata_list()
       shiny::req(length(meta_list) > 0)
       m <- meta_list[[1]]   # scenario/agronomy/fate/metric shared across panels
+      # MSA, body weight and food requirement are NOT shared across panels
+      # (large birds use 140 m2 while small/medium use 70 m2; mammal
+      # acute/chronic differ too) -- listing every receptor explicitly
+      # here, rather than reading only meta_list[[1]], is the fix for
+      # independent review finding A7 (the sidebar previously understated
+      # the large-bird MSA by half).
+      msa_items <- lapply(meta_list, function(x) {
+        shiny::tags$li(sprintf(
+          "%s: MSA %s m2 (%s-term%s) | Body weight %s g | Food requirement %s g dw/day",
+          x$receptor_label, fmt_sig(x$msa_m2), x$msa_term,
+          if (isTRUE(x$msa_is_overridden)) ", OVERRIDDEN" else "",
+          fmt_sig(x$body_weight_g), fmt_sig(x$food_intake_g_dw_per_day)
+        ))
+      })
+      pool_note <- if (identical(m$accessible_pool_basis, "SURFACE_PLUS_BURIED")) {
+        sprintf(
+          paste("Initial surface seed %s seeds/m2, but this receptor group",
+                "accesses the FULL sown density (%s seeds/m2, ASSUMPTION-020)",
+                "-- the figure is built on %s seeds/m2, not the surface figure."),
+          fmt_sig(m$initial_surface_seeds_per_m2),
+          fmt_sig(m$accessible_seeds_per_m2), fmt_sig(m$accessible_seeds_per_m2)
+        )
+      } else {
+        sprintf("Initial surface seed: %s seeds/m2",
+               fmt_sig(m$initial_surface_seeds_per_m2))
+      }
       shiny::tagList(
         shiny::p(shiny::strong(m$scenario_label)),
         shiny::p(m$metric_label),
@@ -196,14 +222,12 @@ mod_max_obtainable_server <- function(id, baseline, inputs, results) {
                                  fmt_sig(m$application_rate),
                                  m$application_rate_unit,
                                  fmt_sig(m$field_rate_g_ai_per_ha))),
-          shiny::tags$li(sprintf("Initial surface seed: %s seeds/m2",
-                                 fmt_sig(m$initial_surface_seeds_per_m2))),
+          shiny::tags$li(pool_note),
           shiny::tags$li(sprintf(
             "Surface-seed DT50: %s d | Residue DT50: %s d",
             fmt_sig(m$surface_seed_dt50_days), fmt_sig(m$residue_dt50_days)
           )),
-          shiny::tags$li(sprintf("MSA (this taxon/metric): %s m2 (%s-term)",
-                                 fmt_sig(m$msa_m2), m$msa_term)),
+          msa_items,
           shiny::tags$li(sprintf("LOC: RQ = %s", fmt_sig(m$loc)))
         ),
         shiny::helpText(m$msa_policy_note)

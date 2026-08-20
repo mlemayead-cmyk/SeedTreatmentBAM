@@ -340,6 +340,31 @@ selection_document <- c(
   sprintf("Git commit: %s", read_project_git_commit()),
   "Parameter status: assessment baseline; no user overrides.",
   "",
+  "## What the figures present",
+  "",
+  paste(
+    "The acute and chronic main figures compare the conventional conditional",
+    "RQ for a 100% treated-seed diet with the maximum RQ actually obtainable",
+    "from treated surface seed within the applicable MSA. The latter caps",
+    "consumption at the smaller of the bird's daily food requirement and the",
+    "seed available within the MSA; it never replaces the conditional RQ."
+  ),
+  "",
+  paste(
+    "The dashed line is the LOC (RQ = 1). When the two curves overlap, field",
+    "seed is sufficient for the conditional diet. When maximum-obtainable RQ",
+    "is lower, seed availability is limiting. Panels show small, medium and",
+    "large birds with independently scaled RQ axes, as stated in each caption."
+  ),
+  "",
+  paste(
+    "Process panels show (A) surface seeds/m2, (B) residue mg a.i./seed,",
+    "(C) surface a.i. mg/m2, and (D) seeds available within MSA divided by",
+    "seeds required for a full treated-seed diet. Panel D = 1 is fully",
+    "obtainable; below 1 is seed-limited. Dietary-fraction figures show",
+    "assumed 1-100% treated-seed diets and do not demonstrate obtainability."
+  ),
+  "",
   "## Coverage",
   "",
   paste(

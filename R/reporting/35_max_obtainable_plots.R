@@ -13,6 +13,30 @@
 #                                  treated seed available within the
 #                                  assessment's own MSA policy.
 
+#' @noRd
+validate_plot_slice <- function(timecourse, unique_columns, function_name,
+                                metadata_by_receptor = NULL) {
+  for (column in unique_columns) {
+    if (!column %in% names(timecourse)) {
+      stbam_abort(function_name, "() is missing required column `", column,
+                  "`.")
+    }
+    if (length(unique(timecourse[[column]])) != 1L) {
+      stbam_abort(function_name, "() requires a single `", column,
+                  "`; filter `timecourse` before plotting.")
+    }
+  }
+  if (!is.null(metadata_by_receptor)) {
+    missing <- setdiff(unique(timecourse$receptor_id),
+                       names(metadata_by_receptor))
+    if (length(missing) > 0L) {
+      stbam_abort(function_name, "() is missing readable metadata for ",
+                  "receptor(s): ", paste(missing, collapse = ", "), ".")
+    }
+  }
+  invisible(TRUE)
+}
+
 #' Principal figure: conditional versus maximum-obtainable RQ through time
 #'
 #' A figure exported from this function must be understandable without
@@ -38,6 +62,18 @@ plot_max_obtainable_exposure <- function(timecourse, metadata,
   if (nrow(one) == 0L) {
     stbam_abort("No diet_fraction == 1 rows to plot. Check the scenario ",
                 "and receptor selection.")
+  }
+  # This function's title and subtitle name exactly one scenario, receptor
+  # and metric; silently plotting more would produce a figure whose label
+  # does not match its data (independent review finding A6).
+  for (col in c("scenario_id", "receptor_id", "metric_id")) {
+    if (length(unique(one[[col]])) > 1L) {
+      stbam_abort("plot_max_obtainable_exposure() requires a single `", col,
+                  "`; received ", length(unique(one[[col]])), ". Filter ",
+                  "`timecourse` first, or use ",
+                  "plot_max_obtainable_small_multiple() for several ",
+                  "receptors.")
+    }
   }
 
   long <- rbind(
@@ -105,6 +141,9 @@ plot_max_obtainable_small_multiple <- function(timecourse, metadata_by_receptor,
   if (nrow(one) == 0L) {
     stbam_abort("No diet_fraction == 1 rows to plot.")
   }
+  validate_plot_slice(one, c("scenario_id", "metric_id", "taxon"),
+                      "plot_max_obtainable_small_multiple",
+                      metadata_by_receptor)
 
   panel_label <- vapply(one$receptor_id, function(id) {
     md <- metadata_by_receptor[[id]]
@@ -180,6 +219,8 @@ plot_seed_availability_vs_requirement <- function(timecourse, metadata) {
   if (nrow(one) == 0L) {
     stbam_abort("No diet_fraction == 1 rows to plot.")
   }
+  validate_plot_slice(one, c("scenario_id", "receptor_id", "metric_id"),
+                      "plot_seed_availability_vs_requirement")
 
   long <- rbind(
     data.frame(day = one$day, seeds = one$max_obtainable_seeds_within_msa,
@@ -232,23 +273,35 @@ plot_exposure_processes <- function(timecourse, metadata_by_receptor,
   if (nrow(one) == 0L) {
     stbam_abort("No diet_fraction == 1 rows to plot.")
   }
+  validate_plot_slice(one, c("scenario_id", "metric_id", "taxon"),
+                      "plot_exposure_processes", metadata_by_receptor)
   one <- one[order(one$receptor_id, one$day), ]
   first_id <- one$receptor_id[[1]]
   process <- one[one$receptor_id == first_id, ]
   process <- process[!duplicated(process$day), ]
+  surface_only <- identical(process$accessible_pool_basis[[1]],
+                            "SURFACE_SEED_ONLY")
+  seed_values <- if (surface_only) {
+    process$surface_seeds_per_m2
+  } else {
+    process$accessible_seeds_per_m2_t
+  }
+  accessible_ai_values <- seed_values * process$ai_per_seed_mg
 
   panel_levels <- c(
-    "A. Surface seeds remaining\n(seeds/m2)",
+    if (surface_only) "A. Surface seeds remaining\n(seeds/m2)" else
+      "A. Accessible seeds remaining\n(seeds/m2; surface + buried)",
     "B. Residue remaining per seed\n(mg a.i./seed)",
-    "C. Active ingredient with surface seed\n(mg a.i./m2)",
+    if (surface_only) "C. Active ingredient with surface seed\n(mg a.i./m2)" else
+      "C. Active ingredient with accessible seed\n(mg a.i./m2)",
     "D. Exposure feasibility\n(available / required seeds)"
   )
   process_data <- rbind(
-    data.frame(day = process$day, value = process$surface_seeds_per_m2,
+    data.frame(day = process$day, value = seed_values,
                panel = panel_levels[[1]], series = "Scenario process"),
     data.frame(day = process$day, value = process$ai_per_seed_mg,
                panel = panel_levels[[2]], series = "Scenario process"),
-    data.frame(day = process$day, value = process$surface_ai_mg_per_m2,
+    data.frame(day = process$day, value = accessible_ai_values,
                panel = panel_levels[[3]], series = "Scenario process")
   )
 
@@ -320,6 +373,9 @@ plot_dietary_fraction_rq <- function(timecourse, metadata,
                                      detail = c("full", "concise")) {
   detail <- match.arg(detail)
   if (nrow(timecourse) == 0L) stbam_abort("No data to plot.")
+  validate_plot_slice(timecourse,
+                      c("scenario_id", "receptor_id", "metric_id"),
+                      "plot_dietary_fraction_rq")
   data <- timecourse[order(timecourse$diet_fraction, timecourse$day), ]
   data$.diet <- factor(
     paste0(formatC(data$diet_fraction * 100, format = "fg", digits = 3), "%"),
@@ -367,6 +423,9 @@ plot_dietary_fraction_small_multiple <- function(
     detail = c("full", "concise")) {
   detail <- match.arg(detail)
   if (nrow(timecourse) == 0L) stbam_abort("No data to plot.")
+  validate_plot_slice(timecourse, c("scenario_id", "metric_id", "taxon"),
+                      "plot_dietary_fraction_small_multiple",
+                      metadata_by_receptor)
   data <- timecourse[order(timecourse$receptor_id, timecourse$diet_fraction,
                            timecourse$day), ]
   data$.panel <- factor(vapply(data$receptor_id, function(id) {

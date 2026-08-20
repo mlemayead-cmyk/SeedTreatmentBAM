@@ -54,7 +54,7 @@ build_daily_timecourse <- function(params, scenario_inputs, receptors = NULL,
   )
   expanded$rq <- risk_quotient(expanded$dose_mg_kg_bw_day,
                                expanded$effects_metric)
-  expanded$above_loc <- expanded$rq >= 1
+  expanded$above_loc <- expanded$rq >= STBAM_DEFAULT_LOC
 
   # Exposure-feasibility analysis, reported separately.
   expanded$available_seeds_within_msa <- available_seed_within_msa(
@@ -132,7 +132,8 @@ build_daily_timecourse <- function(params, scenario_inputs, receptors = NULL,
   expanded$max_obtainable_rq <- risk_quotient(
     expanded$max_obtainable_dose_mg_kg_bw_day, expanded$effects_metric
   )
-  expanded$above_loc_max_obtainable <- expanded$max_obtainable_rq >= 1
+  expanded$above_loc_max_obtainable <-
+    expanded$max_obtainable_rq >= STBAM_DEFAULT_LOC
 
   expanded$residue_dt50_days <- residue_dt50
   expanded$surface_seed_dt50_days <- surface_dt50

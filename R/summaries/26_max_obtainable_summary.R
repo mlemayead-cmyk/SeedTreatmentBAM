@@ -38,6 +38,10 @@ duration_above_max_obtainable_rq <- function(
   check_recyclable(conditional_rq0, max_obtainable_rq0,
                    initial_feasible_fraction, surface_seed_dt50_days,
                    residue_dt50_days, loc)
+  if (any(max_obtainable_rq0 > conditional_rq0 +
+          sqrt(.Machine$double.eps) * pmax(1, conditional_rq0))) {
+    stbam_abort("`max_obtainable_rq0` cannot exceed `conditional_rq0`.")
+  }
 
   scalar <- function(cond0, max0, feasible0, surface_dt50, residue_dt50,
                      threshold) {
@@ -147,12 +151,16 @@ summarise_max_obtainable_exposure <- function(timecourse) {
 
       peak_conditional_rq = max(one$rq),
       peak_max_obtainable_rq = max(one$max_obtainable_rq),
+      conditional_exceeds_loc = max(one$rq) >= STBAM_DEFAULT_LOC,
+      max_obtainable_exceeds_loc =
+        max(one$max_obtainable_rq) >= STBAM_DEFAULT_LOC,
       day0_seeds_available_within_msa = day0$max_obtainable_seeds_within_msa,
       day0_seeds_required_100pct_diet = day0$seeds_required_per_day,
       day0_max_obtainable_seeds_consumed = day0$max_obtainable_seeds_per_day,
 
       day_conditional_below_loc = duration_above_effect_metric(
-        day0$initial_dose_mg_kg_bw_day, day0$effects_metric,
+        day0$initial_dose_mg_kg_bw_day,
+        day0$effects_metric * STBAM_DEFAULT_LOC,
         day0$residue_dt50_days
       ),
       day_max_obtainable_below_loc = duration_above_max_obtainable_rq(
@@ -162,7 +170,8 @@ summarise_max_obtainable_exposure <- function(timecourse) {
         STBAM_DEFAULT_LOC
       ),
       days_above_loc_conditional = duration_above_effect_metric(
-        day0$initial_dose_mg_kg_bw_day, day0$effects_metric,
+        day0$initial_dose_mg_kg_bw_day,
+        day0$effects_metric * STBAM_DEFAULT_LOC,
         day0$residue_dt50_days
       ),
       days_above_loc_max_obtainable = duration_above_max_obtainable_rq(

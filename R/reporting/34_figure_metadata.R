@@ -11,7 +11,8 @@
 #' Human-readable label for one scenario row
 #'
 #' Replaces an internal id such as
-#' `small_cereals|Barley|high|broadcast|high|high_tkw` with a label a reader
+#' `small_cereals|Barley|high|300|mg a.i./kg seed|broadcast|high|high_tkw`
+#' with a label a reader
 #' can interpret directly. The internal id remains available as
 #' `scenario_id` wherever the row itself is available.
 #'
@@ -48,11 +49,15 @@ format_scenario_label <- function(row) {
 #' @param duration_class `"acute"` or `"chronic"`.
 #' @param metric_role `"SCREENING"`, `"REFINED"` or `"REFINED_ADDITIONAL"`.
 #' @param effects_metric The numeric effects-metric value.
-#' @param unit Effects-metric unit. Defaults to the model's one unit.
+#' @param unit Effects-metric unit. Defaults to the model's registered unit
+#'   (`effects_metrics.csv$unit`, `"mg a.i./kg bw/d"`) -- pass the row's own
+#'   `unit` explicitly if calling this for a different register in future,
+#'   so the label never silently disagrees with the metric's own provenance
+#'   text (independent review finding, check 7).
 #' @return A single character string.
 #' @export
 format_metric_label <- function(taxon, duration_class, metric_role,
-                                effects_metric, unit = "mg a.i./kg bw/day") {
+                                effects_metric, unit = "mg a.i./kg bw/d") {
   role_label <- switch(
     metric_role,
     SCREENING = "screening",
@@ -80,10 +85,10 @@ format_receptor_label <- function(size_class, taxon, body_weight_g) {
 msa_policy_note <- function(taxon, msa_term) {
   if (identical(taxon, "bird")) {
     paste(
-      "Birds use the short-term MSA for both acute and chronic/",
-      "reproductive characterization; the source assessment states a",
-      "long-term MSA was not considered for birds (assessment paragraph",
-      "MAIN-P000209)."
+      "Birds use the short-term MSA for both acute and",
+      "chronic/reproductive characterization; the source assessment",
+      "states a long-term MSA was not considered for birds (assessment",
+      "paragraph MAIN-P000209)."
     )
   } else if (identical(msa_term, "long")) {
     paste(
@@ -208,6 +213,17 @@ build_figure_metadata <- function(row, effects_metrics, params) {
     surface_seed_fraction = row$surface_seed_fraction[[1]],
     initial_surface_seeds_per_m2 = row$initial_surface_seeds_per_m2[[1]],
 
+    # The pool actually driving the maximum-obtainable calculation.
+    # SURFACE_SEED_ONLY (all birds): equals initial_surface_seeds_per_m2.
+    # SURFACE_PLUS_BURIED (all mammals, ASSUMPTION-020): the FULL sown
+    # density, not the surface fraction -- these differ by an order of
+    # magnitude or more for drilled/precision-planted crops, and reporting
+    # initial_surface_seeds_per_m2 alone would silently understate the pool
+    # a mammal figure is actually built on (independent review finding,
+    # check 6 of docs/max_obtainable_exposure_review.md).
+    accessible_pool_basis = row$accessible_pool_basis[[1]],
+    accessible_seeds_per_m2 = row$accessible_seeds_per_m2_t[[1]],
+
     # Fate / dissipation.
     surface_seed_dt50_days = row$surface_seed_dt50_days[[1]],
     residue_dt50_days = row$residue_dt50_days[[1]],
@@ -225,6 +241,17 @@ build_figure_metadata <- function(row, effects_metrics, params) {
     # (specification section 10.4), not the manually-toggled msa_m2.
     msa_m2 = row$max_obtainable_msa_m2[[1]],
     msa_term = row$max_obtainable_msa_term[[1]],
+    # If msa_m2 itself carries a USER_OVERRIDE at this receptor's scope (or
+    # globally), it wins over BOTH the short- and long-term policy lookups
+    # and the short/long distinction collapses -- the MAIN-P000209
+    # attribution below would then be citing the assessment's policy as the
+    # basis for a value that is not the assessment's value (independent
+    # review finding A2). Detected here so the footnote can say so rather
+    # than silently mis-attribute an overridden value.
+    msa_is_overridden = any(
+      params$overrides$parameter == "msa_m2" &
+        params$overrides$scope %in% c(row$receptor_id[[1]], "global")
+    ),
     msa_policy_note = msa_policy_note(row$taxon[[1]],
                                       row$max_obtainable_msa_term[[1]]),
 
@@ -232,7 +259,8 @@ build_figure_metadata <- function(row, effects_metrics, params) {
     metric_id = row$metric_id[[1]],
     metric_label = format_metric_label(row$taxon[[1]], row$duration_class[[1]],
                                        row$metric_role[[1]],
-                                       row$effects_metric[[1]]),
+                                       row$effects_metric[[1]],
+                                       unit = metric_row$unit[[1]]),
     effects_metric_value = row$effects_metric[[1]],
     effects_metric_unit = metric_row$unit[[1]],
     duration_class = row$duration_class[[1]],
@@ -278,14 +306,41 @@ format_figure_footnotes <- function(metadata, detail = c("full", "concise"),
   detail <- match.arg(detail)
   m <- metadata
 
+  # For SURFACE_PLUS_BURIED receptors (all mammals, ASSUMPTION-020) the
+  # pool driving the maximum-obtainable calculation is the FULL sown
+  # density, not the surface fraction -- reporting only
+  # initial_surface_seeds_per_m2 here previously understated the actual
+  # pool by an order of magnitude or more for drilled/precision-planted
+  # crops (independent review finding, check 6 of
+  # docs/max_obtainable_exposure_review.md). Both figures are now stated
+  # explicitly whenever they differ.
+  pool_clause <- if (identical(m$accessible_pool_basis, "SURFACE_PLUS_BURIED")) {
+    sprintf(
+      paste(
+        "Initial surface seed %s seeds/m2 (%s: %s%% of sown seed on the",
+        "surface), but this receptor is modelled with access to the FULL",
+        "sown density (%s seeds/m2, ASSUMPTION-020, not surface-restricted)",
+        "-- the maximum-obtainable calculation uses %s seeds/m2, not the",
+        "surface figure"
+      ),
+      fmt_sig(m$initial_surface_seeds_per_m2), m$planting_method_label,
+      fmt_sig(m$surface_seed_fraction * 100), fmt_sig(m$accessible_seeds_per_m2),
+      fmt_sig(m$accessible_seeds_per_m2)
+    )
+  } else {
+    sprintf(
+      "Initial surface seed %s seeds/m2 (%s: %s%% of sown seed on the surface)",
+      fmt_sig(m$initial_surface_seeds_per_m2), m$planting_method_label,
+      fmt_sig(m$surface_seed_fraction * 100)
+    )
+  }
+
   agronomy <- sprintf(
-    "%s %s (%s g a.i./ha) | TKW %s g/1000 seeds (%s) | Seeding rate %s kg/ha (%s; %s seeds/m2 planted) | Initial surface seed %s seeds/m2 (%s: %s%% of sown seed on the surface)",
+    "%s %s (%s g a.i./ha) | TKW %s g/1000 seeds (%s) | Seeding rate %s kg/ha (%s; %s seeds/m2 planted) | %s",
     fmt_sig(m$application_rate), m$application_rate_unit,
     fmt_sig(m$field_rate_g_ai_per_ha), fmt_sig(m$tkw_g_per_1000),
     m$seed_mass_bound, fmt_sig(m$seeding_rate_kg_per_ha),
-    m$seeding_rate_bound, fmt_sig(m$seeds_per_m2),
-    fmt_sig(m$initial_surface_seeds_per_m2),
-    m$planting_method_label, fmt_sig(m$surface_seed_fraction * 100)
+    m$seeding_rate_bound, fmt_sig(m$seeds_per_m2), pool_clause
   )
 
   fate <- sprintf(
@@ -294,9 +349,10 @@ format_figure_footnotes <- function(metadata, detail = c("full", "concise"),
   )
 
   receptor_line <- function(x) sprintf(
-    "%s | Body weight %s g | Food requirement %s g dry-weight diet/day | Applicable MSA %s m2 (%s-term)",
+    "%s | Body weight %s g | Food requirement %s g dry-weight diet/day | Applicable MSA %s m2 (%s-term%s)",
     x$receptor_label, fmt_sig(x$body_weight_g),
-    fmt_sig(x$food_intake_g_dw_per_day), fmt_sig(x$msa_m2), x$msa_term
+    fmt_sig(x$food_intake_g_dw_per_day), fmt_sig(x$msa_m2), x$msa_term,
+    if (isTRUE(x$msa_is_overridden)) ", USER-OVERRIDDEN value" else ""
   )
   receptor <- if (is.null(metadata_by_receptor)) {
     receptor_line(m)
@@ -319,7 +375,27 @@ format_figure_footnotes <- function(metadata, detail = c("full", "concise"),
         fmt_sig(m$uncertainty_factor), m$effects_metric_source
       ))
     }
-    lines <- c(lines, m$msa_policy_note)
+    # Only cite the assessment's MSA policy as the basis for the value
+    # actually shown when that value has not itself been overridden -- an
+    # overridden msa_m2 wins over both the short- and long-term policy
+    # lookups (independent review finding A2), so citing MAIN-P000209 in
+    # that case would misattribute a user-supplied number to the source
+    # assessment.
+    any_msa_overridden <- isTRUE(m$msa_is_overridden) || (
+      !is.null(metadata_by_receptor) &&
+        any(vapply(metadata_by_receptor, function(x) isTRUE(x$msa_is_overridden),
+                   logical(1)))
+    )
+    lines <- c(lines, if (any_msa_overridden) {
+      paste(
+        "At least one MSA value shown above is a USER OVERRIDE, not the",
+        "assessment default. The short-/long-term distinction from",
+        "assessment paragraph MAIN-P000209 does not apply to an overridden",
+        "value; it is retained here only for whichever panel is unaffected."
+      )
+    } else {
+      m$msa_policy_note
+    })
     lines <- c(lines, paste(
       "100% treated-seed diet: dose/RQ if the receptor obtained its full",
       "daily dietary requirement as treated seed, regardless of whether",

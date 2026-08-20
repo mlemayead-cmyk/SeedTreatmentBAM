@@ -136,7 +136,7 @@ seed-mass bound. All time-independent agronomic quantities.
 
 | Column | Meaning |
 |---|---|
-| `scenario_id` | Stable composite key: `workbook\|crop\|rate_level\|method\|rate_bound\|mass_bound` |
+| `scenario_id` | Stable composite key: `workbook\|crop\|rate_level\|numeric_application_rate\|application_rate_unit\|method\|rate_bound\|mass_bound`; the numeric rate and unit distinguish scientifically different uses that share a textual rate level |
 | `workbook`, `crop`, `rate_level` | Identify the source scenario row |
 | `application_rate`, `application_rate_unit` | Registered rate, effective value (after any override) |
 | `planting_method`, `planting_method_label` | Code and display text |
@@ -211,6 +211,21 @@ walkthrough §10), distinct from the manually-toggled `msa_m2`/
 `seeds_per_m2` is also carried on this dataset (added alongside the above)
 for scenarios/tooling that need sown seed density directly rather than via
 `seeds_per_ha / 10000`.
+
+### `maximum_obtainable_summary` (`summarise_max_obtainable_exposure()`)
+
+One row per scenario x receptor x metric at a 100% treated-seed diet. It
+retains the identifying, agronomic, receptor, metric, half-life and MSA fields
+from `daily_timecourse`, and adds:
+
+| Column | Meaning |
+|---|---|
+| `peak_conditional_rq`, `peak_max_obtainable_rq` | Peak conventional conditional and availability-capped risk quotients |
+| `conditional_exceeds_loc`, `max_obtainable_exceeds_loc` | Whether the corresponding peak RQ is at or above `STBAM_DEFAULT_LOC` |
+| `day0_seeds_available_within_msa`, `day0_seeds_required_100pct_diet`, `day0_max_obtainable_seeds_consumed` | Day-zero seed supply, demand and capped consumption |
+| `day_conditional_below_loc`, `day_max_obtainable_below_loc` | Exact continuous time at which each monotone RQ drops below the LOC |
+| `days_above_loc_conditional`, `days_above_loc_max_obtainable` | Duration at/above the LOC; numerically equal to the corresponding crossing time for these monotone curves |
+| `day_100pct_diet_unobtainable`, `day_50pct_diet_unobtainable`, `day_25pct_diet_unobtainable` | Exact continuous time at which each dietary fraction ceases to be obtainable within the applicable MSA |
 
 ### `table162_support` (`build_table162_support()`)
 

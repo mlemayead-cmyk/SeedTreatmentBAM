@@ -164,9 +164,17 @@ build_scenario_inputs <- function(params, crops = NULL, workbooks = NULL,
           initial_surface <- surface_seed_initial(seeds_ha$value, fraction$value)
 
           rows[[length(rows) + 1L]] <- tibble::tibble(
-            scenario_id = paste(scenario$workbook, scenario$crop,
-                                scenario$rate_level, method, rate_bound,
-                                mass_bound, sep = "|"),
+            # Numeric rate and unit are part of the stable identifier. Several
+            # legume crops have both mg/kg-seed and mg/seed uses sharing the
+            # same rate_level; omitting these fields silently produced duplicate
+            # identifiers for scientifically different scenarios.
+            scenario_id = paste(
+              scenario$workbook, scenario$crop, scenario$rate_level,
+              format(rate$value, scientific = FALSE, trim = TRUE,
+                     digits = 15),
+              scenario$application_rate_unit, method, rate_bound, mass_bound,
+              sep = "|"
+            ),
             workbook = scenario$workbook,
             crop = scenario$crop,
             rate_level = scenario$rate_level,

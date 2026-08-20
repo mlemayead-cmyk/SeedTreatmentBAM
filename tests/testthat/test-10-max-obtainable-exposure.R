@@ -68,6 +68,16 @@ test_that("maximum-obtainable seed consumption never exceeds availability or req
                     tc$seeds_required_per_day + 1e-9))
 })
 
+test_that("canonical scenario identifiers uniquely preserve numeric treatment rates and units", {
+  priority_inputs <- build_scenario_inputs(
+    params,
+    workbooks = c("small_cereals", "legumes_shallow", "legumes_deep")
+  )
+  expect_equal(nrow(priority_inputs), 836L)
+  expect_equal(length(unique(priority_inputs$scenario_id)),
+               nrow(priority_inputs))
+})
+
 # --- Abundant-seed vs. seed-limited conditions -----------------------------
 
 test_that("abundant surface seed: maximum-obtainable RQ equals conditional RQ", {
@@ -216,7 +226,7 @@ test_that("changing the effects metric changes RQ but not dose or seed availabil
 
 test_that("format_metric_label produces the documented human-readable form", {
   expect_equal(format_metric_label("bird", "acute", "SCREENING", 43.1),
-               "Bird acute screening — 43.1 mg a.i./kg bw/day")
+               "Bird acute screening — 43.1 mg a.i./kg bw/d")
 })
 
 test_that("format_scenario_label produces a readable, non-internal label", {
@@ -334,6 +344,19 @@ test_that("maximum-obtainable LOC duration is exact in abundant and seed-limited
     transition + (20 / 3) * log2(rq_transition), tolerance = 1e-12
   )
   expect_equal(duration_above_max_obtainable_rq(0.5, 0.5, 10, 10, 10), 0)
+  expect_error(
+    duration_above_max_obtainable_rq(2, 2.1, 1, 10, 10),
+    "cannot exceed"
+  )
+})
+
+test_that("LOC flags consistently use the declared model threshold", {
+  expect_identical(tc$above_loc, tc$rq >= STBAM_DEFAULT_LOC)
+  summary <- summarise_max_obtainable_exposure(tc)
+  expect_identical(summary$conditional_exceeds_loc,
+                   summary$peak_conditional_rq >= STBAM_DEFAULT_LOC)
+  expect_identical(summary$max_obtainable_exceeds_loc,
+                   summary$peak_max_obtainable_rq >= STBAM_DEFAULT_LOC)
 })
 
 # --- Plot functions run without error and are self-contained ---------------
@@ -410,4 +433,30 @@ test_that("dietary-fraction RQ plot labels fractions as assumptions", {
   expect_s3_class(p, "ggplot")
   expect_true(grepl("assumed, not demonstrated obtainable", p$labels$caption,
                     fixed = TRUE))
+})
+
+test_that("plot functions reject mixed or incompletely documented slices", {
+  row <- tc[tc$metric_id == "bird_acute_screening" & tc$day == 0, ]
+  meta <- build_figure_metadata(row, bird_metrics, params)
+  expect_error(plot_max_obtainable_exposure(tc, meta), "single `metric_id`")
+
+  all_bird_receptors <- resolve_receptors(
+    params, c("bird_small", "bird_medium", "bird_large")
+  )
+  one_metric <- build_daily_timecourse(
+    params, low_low, all_bird_receptors,
+    bird_metrics[bird_metrics$metric_id == "bird_acute_screening", ],
+    diet_fractions = 1, days = c(0, 10)
+  )
+  incomplete_metadata <- list(
+    bird_small = build_figure_metadata(
+      one_metric[one_metric$receptor_id == "bird_small" &
+                   one_metric$day == 0, ],
+      bird_metrics, params
+    )
+  )
+  expect_error(
+    plot_max_obtainable_small_multiple(one_metric, incomplete_metadata),
+    "missing readable metadata"
+  )
 })

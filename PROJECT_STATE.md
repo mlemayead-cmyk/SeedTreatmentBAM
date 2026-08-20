@@ -2,7 +2,7 @@
 
 Last saved: 2026-08-20 15:40 -04:00 (America/Toronto)
 
-## Current phase: maximum-obtainable-exposure feature — implemented, independent review pending
+## Current phase: maximum-obtainable-exposure feature — implemented, independently reviewed, findings corrected
 
 **Read this section first if you are resuming after the recovery/audit
 phase below.** After that phase completed, a focused new feature was
@@ -12,37 +12,40 @@ maximum-obtainable RQ, with its own Shiny tab, canonical dataset columns,
 figure metadata/self-contained export, and tests. See
 `docs/scientific_model_specification.md` §10.4 and
 `docs/model_walkthrough.md` §10 for what it calculates;
-`docs/model_validation_report.md`'s "Feature addition" section for status.
+`docs/model_validation_report.md`'s "Feature addition" section for full
+status.
 
-**Important: this feature was built by two concurrent AI sessions working
-in the same working tree, not on separate branches.** This session
-("Claude") designed the original functions; a separate session the user
-was running in parallel ("Codex") independently extended and partly
-rewrote some of the same files afterward — most notably replacing a
-grid-scan approximation in `summarise_max_obtainable_exposure()` with an
-exact closed-form solution, and adding its own plotting functions
-(`plot_exposure_processes`, `plot_dietary_fraction_rq`,
-`plot_dietary_fraction_small_multiple`) and a separate static-figure
-generation script (`scripts/generate_priority_exposure_figures.R`,
-`docs/priority_exposure_figures.md`) not covered by this project-state
-entry. **Codex made its own local commit, `9706dec` ("Add batch
-self-contained exposure/risk figures"), which bundles both sessions' work
-together** because there was no branch isolation. This session reviewed
-that commit's content, found it consistent with a working, tested state
-(full suite green after both sessions' changes), and added one further
-documentation-only commit (`8b8b42f`) on top rather than attempting any
-history rewrite. **Neither commit has been pushed to origin as of this
-save** — pending the user's decision on how to handle the entangled
-authorship, per this session's completion report.
+**This feature was built by two concurrent AI sessions working in the
+same working tree, not on separate branches** — this session ("Claude")
+and a separate session the user ran in parallel ("Codex"), which
+independently extended/rewrote some of the same files, most notably
+contributing an exact closed-form solution for the maximum-obtainable
+RQ's LOC-crossing day (`duration_above_max_obtainable_rq()`, verified
+independently and confirmed correct — see the review below) and its own
+process-explanation and dietary-fraction plotting functions. **This is
+now reflected in git history as multiple interleaved commits under one
+identity** (`9706dec`, `8b8b42f`, `a425908`, plus this session's own
+subsequent commits) rather than one commit per session. The user
+explicitly confirmed pushing the combined history as-is; it is on
+`origin/main`.
 
-Do not attempt to separate the two sessions' contributions after the fact
-by editing history (`git rebase`, `filter-branch`, etc.) without the
-user's explicit instruction; the working tree is consistent and tested as
-it stands.
+**Independent adversarial review of this specific feature is complete**
+(`docs/max_obtainable_exposure_review.md`): 19 items checked, 8 PASS, 3
+CONFIRMED_ERROR (all fixed), 2 POTENTIAL_ERROR (both addressed), 4
+ROBUSTNESS_ISSUE (partially addressed), 3 DOCUMENTATION_GAP, 1
+REQUIRES_HUMAN_REVIEW. The calculation itself (double-counting, MSA
+policy, food-requirement cap, units) passed outright; every defect found
+was in reporting (a footnote or sidebar stating the wrong number, always
+for mammal/`SURFACE_PLUS_BURIED` receptors) or input robustness, not in
+the arithmetic. Full detail and the one remaining item needing your own
+scientific judgement (whether mammals should be modelled as accessing
+100% of sown/buried seed, inherited from pre-existing `ASSUMPTION-020`
+but now driving a headline number rather than a diagnostic flag) are in
+`docs/model_validation_report.md`'s "Feature addition" section — read
+that before relying on a mammal maximum-obtainable figure for anything
+consequential. Bird figures have no open finding.
 
-An independent adversarial review of this specific feature (not the core
-engine, which was already reviewed in the phase below) was launched as a
-separate background process; check
+Historical note, kept for context:
 `docs/max_obtainable_exposure_review.md` for whether it has landed, and
 this file's own next-step notes once it has.
 
