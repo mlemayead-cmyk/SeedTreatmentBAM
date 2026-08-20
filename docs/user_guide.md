@@ -92,6 +92,40 @@ most important one to look at when first understanding a scenario — it
 shows visually that surface-seed loss and residue dissipation are different
 processes with different speeds (`docs/model_walkthrough.md` section 6).
 
+### Maximum obtainable exposure
+
+Answers a sharper question than "Exposure through time": not just what the
+dose/RQ would be at an assumed dietary fraction, but the **largest dose
+this receptor could actually get**, given how much treated seed genuinely
+remains and without exceeding its own food requirement. Pick one scenario
+and one effects metric; the tab shows a small-multiple panel, one per
+receptor size of the metric's taxon (small/medium/large), each with two
+lines: "100% treated-seed diet" (the conventional conditional RQ) and
+"Maximum obtainable within MSA" (capped at the lesser of the food
+requirement and the seed actually available). The two lines are identical
+while seed is abundant and diverge once availability becomes the binding
+constraint — the point of divergence is itself informative.
+
+Panels use independent y-axis scales by default (a 20 g and a 1000 g
+receptor rarely share a sensible RQ range) — this is stated explicitly in
+the figure, never left implicit. The sidebar's "Current assumptions" panel
+shows the scenario, treatment, both DT50 values, the effects metric, and —
+critically — which maximum search area (MSA) was used and why: this tab
+resolves the correct MSA automatically from the source assessment's own
+policy (birds always short-term; mammals short-term for acute and
+long-term for chronic/reproductive characterization — assessment paragraph
+`MAIN-P000209`) rather than exposing it as a manual toggle, unlike the
+"Exposure feasibility" tab's general-purpose diagnostic.
+
+A "Summary" table gives peak RQs and the exact day each curve crosses the
+level of concern, plus the day 100%/50%/25% of the assumed diet stops being
+obtainable. Companion tabs below show why: seed availability against
+requirement, and the underlying surface-seed/residue/surface-loading
+processes (the same plots as "Exposure through time"). The downloaded
+figure (PNG or SVG) carries its own title, legend and a full assumptions
+footnote — it does not require this Shiny page to be interpreted correctly,
+which makes it suitable for direct use in a Word report.
+
 ### Exposure feasibility
 
 A blue banner reiterates that this tab is a plausibility diagnostic, not an

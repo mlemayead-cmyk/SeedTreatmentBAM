@@ -1,20 +1,21 @@
 # Model validation report
 
-**Status as of 2026-08-20: independent audit in progress.** This report
-will be updated when `docs/independent_engine_audit.md` is complete. Until
-then, treat "validated" below as meaning "internally self-consistent and
-matches its own specification's cited examples" — not yet "independently
-confirmed by a process that didn't also write the code."
+**Status as of 2026-08-20: core engine independently audited and clean
+(see Layer 3). A new feature (maximum obtainable exposure, §"Feature
+addition" below) has since been added and is undergoing its own
+independent review, not yet complete.** Treat the core engine's
+"validated" as meaning independently confirmed by a process that did not
+write the code; treat the new feature as implemented and self-tested only
+until its own review lands.
 
 ## Layer 1: automated test suite
 
-`tests/testthat/` — 9 files, **448 assertions, 0 failures** (confirmed
-2026-08-20, this recovery session, after correctly loading all three
-engine layers — an earlier same-session run under-loaded the `shiny` layer
-and produced spurious "function not found" errors; re-run with all three
-layers loaded and it is a clean pass). 424 of these predate this session;
-24 new assertions were added the same day to cover the three code fixes
-made in response to the independent audit (Layer 3 below).
+`tests/testthat/` — 11 files, **556 assertions, 0 failures** (confirmed
+2026-08-20). 424 predate this session's recovery work; a further 24 were
+added for the three engine robustness fixes (Layer 3 below); the remaining
+assertions cover the maximum-obtainable-exposure feature (calculation,
+MSA policy, figure metadata/footnotes, plotting, and a live Shiny
+reactive-graph test) added afterward.
 
 | File | Assertions | Covers |
 |---|---:|---|
@@ -196,6 +197,32 @@ should be appended here once complete.
 confidence as a Small Cereals result.** The calculation logic has identical
 test coverage; the underlying source numbers for those five workbooks have
 not had the same independent verification.
+
+## Feature addition: maximum obtainable exposure (2026-08-20, post-audit)
+
+After the independent engine audit above completed and its findings were
+corrected, one feature was added: a "maximum obtainable exposure" analysis
+distinguishing the conventional conditional RQ (assumed dietary fraction,
+uncapped) from a new availability-constrained maximum-obtainable RQ (capped
+at the lesser of the receptor's food requirement and treated seed available
+within the source assessment's own MSA policy — see specification §10.4
+and model walkthrough §10). This reuses the already-audited engine
+functions (`daily_ai_intake_dose()`, `risk_quotient()`,
+`available_seed_within_msa()`) and adds two small new primitives
+(`resolve_msa_term_for_metric()`, `max_obtainable_seeds_per_day()`), new
+canonical columns on `daily_timecourse`, a summary/annotation layer, figure
+metadata/footnote generation for self-contained exported figures, plotting
+functions, and a new Shiny tab.
+
+This feature has its own test coverage (part of the 556 assertions above,
+including a live Shiny reactive-graph test) but **has not yet completed its
+own independent adversarial review** — that review was launched
+immediately after implementation and, per the same standard applied to the
+core engine, was performed by a process that did not write the feature.
+Its result will be appended here once complete; until then, treat this
+specific feature's correctness as implemented-and-self-tested, not yet
+independently confirmed, distinct from the core engine's audited status
+above.
 
 ## Overall verdict
 

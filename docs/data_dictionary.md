@@ -190,6 +190,28 @@ writes a documented representative slice (see that script's header
 comment); `scenario_summary` is closed-form and always covers every
 scenario.
 
+**Maximum-obtainable-exposure columns** (specification §10.4; model
+walkthrough §10), distinct from the manually-toggled `msa_m2`/
+`available_seeds_within_msa`/`max_feasible_diet_fraction` columns above
+(which remain driven by whatever `msa_term` the caller passed to
+`resolve_receptors()`):
+
+| Column | Meaning |
+|---|---|
+| `max_obtainable_msa_term` | `"short"` or `"long"`, resolved automatically per row's taxon/duration_class from the source assessment's own policy (`resolve_msa_term_for_metric()`), not a manual choice |
+| `max_obtainable_msa_m2` | The resolved MSA value for that policy term |
+| `max_obtainable_seeds_within_msa` | Treated seed available within that MSA, at time `t` |
+| `max_obtainable_diet_fraction` | Maximum feasible dietary fraction under the policy-correct MSA (parallels `max_feasible_diet_fraction`) |
+| `diet_fraction_is_obtainable` | Whether `diet_fraction` is obtainable under the policy-correct MSA (parallels `diet_fraction_is_feasible`) |
+| `max_obtainable_seeds_per_day` | `min(seeds_required_per_day, max_obtainable_seeds_within_msa)` — never assumes the receptor eats past its own food requirement even when seed is abundant |
+| `max_obtainable_dose_mg_kg_bw_day` | Dose from `max_obtainable_seeds_per_day`, using the same per-seed dose function as the conditional dose |
+| `max_obtainable_rq` | `max_obtainable_dose_mg_kg_bw_day / effects_metric` |
+| `above_loc_max_obtainable` | `max_obtainable_rq >= LOC` |
+
+`seeds_per_m2` is also carried on this dataset (added alongside the above)
+for scenarios/tooling that need sown seed density directly rather than via
+`seeds_per_ha / 10000`.
+
 ### `table162_support` (`build_table162_support()`)
 
 One row per crop family x rate x planting method x receptor x duration

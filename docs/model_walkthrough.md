@@ -363,7 +363,85 @@ many rows should end up in a Word document" question is handled separately
 
 ---
 
-## 10. Where to go next
+## 10. Two exposure questions: conditional versus maximum obtainable
+
+Section 7 already distinguished the calculated regulatory exposure from
+the MSA feasibility diagnostic. The "maximum obtainable exposure" figure
+(the "Maximum obtainable exposure" dashboard tab) puts both on one plot so
+the difference is visible directly, and answers a sharper version of the
+feasibility question: not just "is the assumed diet fraction obtainable?"
+but "what is the largest dose this receptor could actually get, given how
+much treated seed genuinely remains?"
+
+**Two curves, two different questions:**
+
+- **"100% treated-seed diet"** — the same conditional RQ from section 5,
+  assuming the receptor gets a stated fraction of its diet (100% here) from
+  treated seed. This never depends on how much seed is actually present.
+- **"Maximum obtainable within MSA"** — the RQ if the receptor eats as much
+  treated seed as it can find within its search area, **capped at whichever
+  is smaller**: the seed actually available, or the receptor's own daily
+  food requirement (a receptor is never modelled as eating past its own
+  appetite just because seed is abundant).
+
+```
+maximum obtainable seeds/day = min(seeds required for the assumed diet,
+                                    seeds available within the applicable MSA)
+```
+
+**Worked example, continuing the Barley scenario from section 5** (small
+bird, 300 mg a.i./kg seed, broadcast, chronic screening metric 7.78 —
+figures verified by `scripts/reviewer_validation_walkthrough.R` and the
+independent audit):
+
+| Day | Seeds required for 100% diet | Seeds available within MSA (70 m²) | Conditional RQ | Maximum-obtainable RQ |
+|---:|---:|---:|---:|---:|
+| 0 | 205 | 12,600 | 1.77 | 1.77 (identical — abundant seed) |
+| 60 | 205 | 646 | 0.0276 | 0.0276 (still identical — still abundant) |
+| 83.2 | 205 | 205 | 0.00553 | 0.00553 (the exact crossover point) |
+| 95 | 205 | 114 | 0.00244 | **0.00136 (now seed-limited — the curves have diverged)** |
+
+The two curves are **identical** for as long as more seed is available than
+the receptor needs — the cap never binds, so "maximum obtainable" and
+"100% assumed diet" describe the same thing. They **diverge** exactly at
+the day availability drops below requirement (day 83.2 here — the same
+value independently audited from the source workbook, `docs/independent_engine_audit.md`
+§6.1). Past that point the maximum-obtainable curve falls faster, because
+it is now driven by **both** declining processes at once (surface-seed
+disappearance **and** residue dissipation) rather than residue dissipation
+alone.
+
+**Which maximum search area (MSA) is used is not a free choice for this
+figure.** The source assessment states explicitly (paragraph `MAIN-P000209`):
+birds use the short-term MSA for **both** acute and chronic/reproductive
+characterization — a long-term bird MSA was considered and explicitly not
+applied, because the assessment found no evidence that reproductive effects
+were due to sustained exposure rather than a critical parental exposure
+window. Mammals use the short-term MSA for acute characterization and the
+long-term MSA for chronic/reproductive characterization, because mammalian
+reproductive effects were attributed to prolonged parental exposure. The
+dashboard resolves this automatically per receptor and effects metric — it
+is not a manual toggle for this specific figure, unlike the general
+"Exposure feasibility" tab's MSA control (specification §10.4).
+
+**When each curve crosses the level of concern (LOC, RQ = 1) is computed
+exactly, not read off a plot.** The conditional crossing uses the same
+closed-form solution as section 6. The maximum-obtainable crossing is
+piecewise: while seed is abundant it follows the same closed form as the
+conditional curve (both are governed by residue dissipation alone); once
+seed becomes limiting, it follows the **combined** half-life from section 6
+instead. In the worked example above, the chronic RQ already falls below 1
+at day 8.22 — well before seed becomes limiting at day 83.2 — so both
+crossing days happen to coincide exactly in this case.
+
+*R code:* `R/calculations/05_feasibility.R` (`resolve_msa_term_for_metric()`,
+`max_obtainable_seeds_per_day()`); the new columns in
+`R/summaries/22_daily_timecourse.R`; `R/summaries/26_max_obtainable_summary.R`;
+plotting in `R/reporting/35_max_obtainable_plots.R`.
+
+---
+
+## 11. Where to go next
 
 - Run `scripts/reviewer_validation_walkthrough.R` yourself and change the
   crop, rate, or receptor in Parts 1 and 8 to walk through a different

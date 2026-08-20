@@ -94,6 +94,28 @@ between each row unless the step says otherwise.
 | E3 | Export the current scenario configuration (download button on Override register), then re-import it after resetting. Confirm the override reappears. | Round-trips correctly | | |
 | E4 | Confirm no action in the app has modified any file under `data/reference/` (check file timestamps before/after your session) | Unchanged | | |
 
+## Part F — Maximum obtainable exposure (new feature)
+
+Go to the **Maximum obtainable exposure** tab. Select the Barley/high/
+broadcast scenario and `bird_acute_screening` as the effects metric.
+
+| # | Step | Expected behaviour | Reference value | Result | Notes |
+|---|---|---|---|---|---|
+| F1 | With no overrides applied, read the "Current assumptions" panel | States MSA = 70 m² (short-term), with a one-line explanation citing the source assessment | 70 m2, short-term | | |
+| F2 | Read the Summary table's peak values for the small-bird panel | Peak conditional RQ and peak maximum-obtainable RQ are equal | Both ≈ 1.768 (day 0) | | |
+| F3 | Read "Day 100% diet unobtainable" for the small-bird panel | A specific day, not "never" | ≈ 83.2 days | | |
+| F4 | On the small-bird panel, compare the two curves at a day well before F3's value (e.g. day 30) | The two lines overlap exactly — abundant seed | | | |
+| F5 | Compare the two curves at a day well past F3's value (e.g. day 95) | "Maximum obtainable within MSA" is visibly below "100% treated-seed diet" | | | |
+| F6 | Open the "Seed availability vs. requirement" companion tab for the small bird | The two lines (availability, requirement) cross at approximately the F3 day | | | |
+| F7 | Switch the effects metric to `bird_chronic_screening` | Curves change shape (different metric, same dose/availability); the MSA term shown in "Current assumptions" is unchanged (still short-term — birds always use short-term, acute or chronic) | | | |
+| F8 | Go to **Scenario and inputs**, select a mammal scenario/receptor, return to this tab, and pick a mammal **acute** effects metric, then a mammal **chronic** effects metric | The MSA shown in "Current assumptions" changes from 70 m² (short-term) for the acute metric to 35 m² (long-term) for the chronic metric | 70→35 m2 | | |
+| F9 | On the small-multiple panel, compare the y-axis ranges across small/medium/large receptor panels | Ranges differ (independent scales); a note below the figure states this explicitly | | | |
+| F10 | Apply a residue DT50 override (Scenario and inputs > Editable assumptions), return to this tab | Both curves shift together at every day (both are residue-driven before availability binds); the "Day 100% diet unobtainable" value in the Summary table is **unchanged** (that value depends on surface-seed DT50, not residue DT50) | | | |
+| F11 | Reset overrides, apply a surface-seed DT50 override instead | "Day 100% diet unobtainable" changes; the two curves' *early* overlap region is unaffected (residue-driven portion is unchanged) | | | |
+| F12 | Apply an MSA override for the receptor currently shown (Scenario and inputs > Editable assumptions has no direct MSA control; use a saved scenario-configuration CSV with an `msa_m2` override if you have one, or skip this step if not) | Only the "Maximum obtainable within MSA" curve moves; "100% treated-seed diet" is unchanged | | | |
+| F13 | Change only the effects metric (not dose-affecting inputs) | RQ values change; the Summary table's `day0_seeds_available_within_msa` / seed-availability figures are unchanged | | | |
+| F14 | Download the principal figure (PNG). Open it outside the browser/app. | Without looking at Shiny, you can state: crop and treatment rate, receptor body weight, the effects metric and its value, the LOC definition, the initial surface seed density, both DT50 values (labelled so you know which is which), which MSA was used and why, what each curve means, and whether the scenario contains overrides | | | |
+
 ## Overall
 
 | Field | Value |

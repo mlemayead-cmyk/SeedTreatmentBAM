@@ -78,6 +78,15 @@ each change. Switch back to Scenario and inputs between steps.
   `risk_and_duration` or the full appendix yet** — see
   `docs/word_export_diagnosis.md` first; a large Word export will hang the
   session.
+- **Maximum obtainable exposure.** Select a scenario and the
+  `bird_acute_screening` effects metric. Confirm three panels appear
+  (small/medium/large bird) each with two lines. Early in the timeframe the
+  two lines should overlap exactly; check the "Summary" table's "Day 100%
+  diet unobtainable" value — past that day the lines should visibly
+  diverge, with "Maximum obtainable within MSA" below "100% treated-seed
+  diet". The sidebar's "Current assumptions" should state which MSA (m²)
+  and term (short/long) was used, with a one-line explanation citing the
+  source assessment.
 - **Table 162 support.** Pick a decision record from the dropdown. Confirm
   the "Peer-review consensus" card says the software never populates it, and
   that no field on this tab looks like it is making an acceptability
