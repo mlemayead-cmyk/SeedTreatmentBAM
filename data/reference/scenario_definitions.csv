@@ -1,0 +1,158 @@
+workbook,seed_use_number,crop,rate_level,application_rate,application_rate_unit,source,status
+small_cereals,1.0,Barley,high,300.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+small_cereals,1.0,Barley,mid,200.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+small_cereals,1.0,Barley,low,100.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+small_cereals,2.0,Rye,high,300.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+small_cereals,2.0,Rye,mid,200.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+small_cereals,2.0,Rye,low,100.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+small_cereals,3.0,Triticale,high,300.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+small_cereals,3.0,Triticale,mid,200.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+small_cereals,3.0,Triticale,low,100.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+small_cereals,4.0,"Wheat, Durum",high,300.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+small_cereals,4.0,"Wheat, Durum",mid,200.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+small_cereals,4.0,"Wheat, Durum",low,100.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+small_cereals,5.0,"Wheat, spring (non-durum)",high,300.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+small_cereals,5.0,"Wheat, spring (non-durum)",mid,200.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+small_cereals,5.0,"Wheat, spring (non-durum)",low,100.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+small_cereals,6.0,"Wheat, winter (non-durum)",high,300.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+small_cereals,6.0,"Wheat, winter (non-durum)",mid,200.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+small_cereals,6.0,"Wheat, winter (non-durum)",low,100.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+small_cereals,7.0,Buckwheat,high,300.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+small_cereals,7.0,Buckwheat,mid,200.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+small_cereals,7.0,Buckwheat,low,100.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+small_cereals,8.0,Sorghum,high,300.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+small_cereals,8.0,Sorghum,mid,200.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+small_cereals,8.0,Sorghum,low,100.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+small_cereals,9.0,Oat,high,200.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+small_cereals,10.0,"Millet, pearl",high,300.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+small_cereals,10.0,"Millet, pearl",mid,200.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+small_cereals,10.0,"Millet, pearl",low,100.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+small_cereals,11.0,"Millet, proso",high,300.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+small_cereals,11.0,"Millet, proso",mid,200.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+small_cereals,11.0,"Millet, proso",low,100.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+small_cereals_msa,1.0,Barley,high,300.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+small_cereals_msa,1.0,Barley,mid,200.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+small_cereals_msa,1.0,Barley,low,100.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+small_cereals_msa,2.0,Rye,high,300.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+small_cereals_msa,2.0,Rye,mid,200.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+small_cereals_msa,2.0,Rye,low,100.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+small_cereals_msa,3.0,Triticale,high,300.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+small_cereals_msa,3.0,Triticale,mid,200.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+small_cereals_msa,3.0,Triticale,low,100.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+small_cereals_msa,4.0,"Wheat, Durum",high,300.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+small_cereals_msa,4.0,"Wheat, Durum",mid,200.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+small_cereals_msa,4.0,"Wheat, Durum",low,100.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+small_cereals_msa,5.0,"Wheat, spring (non-durum)",high,300.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+small_cereals_msa,5.0,"Wheat, spring (non-durum)",mid,200.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+small_cereals_msa,5.0,"Wheat, spring (non-durum)",low,100.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+small_cereals_msa,6.0,"Wheat, winter (non-durum)",high,300.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+small_cereals_msa,6.0,"Wheat, winter (non-durum)",mid,200.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+small_cereals_msa,6.0,"Wheat, winter (non-durum)",low,100.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+small_cereals_msa,7.0,Buckwheat,high,300.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+small_cereals_msa,7.0,Buckwheat,mid,200.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+small_cereals_msa,7.0,Buckwheat,low,100.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+small_cereals_msa,8.0,Sorghum,high,300.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+small_cereals_msa,8.0,Sorghum,mid,200.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+small_cereals_msa,8.0,Sorghum,low,100.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+small_cereals_msa,9.0,Oat,high,200.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+small_cereals_msa,10.0,"Millet, pearl",high,300.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+small_cereals_msa,10.0,"Millet, pearl",mid,200.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+small_cereals_msa,10.0,"Millet, pearl",low,100.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+small_cereals_msa,11.0,"Millet, proso",high,300.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+small_cereals_msa,11.0,"Millet, proso",mid,200.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+small_cereals_msa,11.0,"Millet, proso",low,100.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+canola,1.0,"Mustard, yellow",high,4035.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+canola,1.0,"Mustard, yellow",mid,4000.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+canola,1.0,"Mustard, yellow",low,2000.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+canola,2.0,"Mustard, brown and oriental",high,4035.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+canola,2.0,"Mustard, brown and oriental",mid,4000.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+canola,2.0,"Mustard, brown and oriental",low,2000.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+canola,3.0,"Mustard, oilseed, broadcast seeding",high,4035.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+canola,3.0,"Mustard, oilseed, broadcast seeding",mid,4000.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+canola,3.0,"Mustard, oilseed, broadcast seeding",low,2000.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+canola,4.0,"Mustard, oilseed, standard planting",high,4035.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+canola,4.0,"Mustard, oilseed, standard planting",mid,4000.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+canola,4.0,"Mustard, oilseed, standard planting",low,2000.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+canola,5.0,"Canola/rapeseed, all varieties, broadcast seeding",high,4035.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+canola,5.0,"Canola/rapeseed, all varieties, broadcast seeding",mid,4000.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+canola,5.0,"Canola/rapeseed, all varieties, broadcast seeding",low,2000.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+canola,6.0,"Canola/rapeseed, all varieties, standard seeding",high,4035.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+canola,6.0,"Canola/rapeseed, all varieties, standard seeding",mid,4000.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+canola,6.0,"Canola/rapeseed, all varieties, standard seeding",low,2000.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+legumes_deep,1.0,"Bean, broad/faba, large-seeded",high,500.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+legumes_deep,1.0,"Bean, broad/faba, large-seeded",mid,300.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+legumes_deep,1.0,"Bean, broad/faba, large-seeded",low,100.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+legumes_deep,2.0,"Bean, broad/faba, small-seeded",high,560.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+legumes_deep,2.0,"Bean, broad/faba, small-seeded",mid,300.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+legumes_deep,2.0,"Bean, broad/faba, small-seeded",low,100.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+legumes_deep,3.0,"Bean, broad/faba, small-seeded",high,0.076,mg a.i./seed,"CRUISER® 5FS Seed Treatment label, Reg. No. 27045",ASSESSMENT_DEFAULT
+legumes_deep,3.0,"Bean, broad/faba, small-seeded",low,0.045,mg a.i./seed,"CRUISER® 5FS Seed Treatment label, Reg. No. 27045",ASSESSMENT_DEFAULT
+legumes_deep,4.0,"Bean, coloured excluding kidney and cranberry , narrow row/solid seeding",high,0.076,mg a.i./seed,VUI 3622323,ASSESSMENT_DEFAULT
+legumes_deep,4.0,"Bean, coloured excluding kidney and cranberry , narrow row/solid seeding",low,0.045,mg a.i./seed,VUI 3622323,ASSESSMENT_DEFAULT
+legumes_deep,5.0,"Bean, coloured excluding kidney and cranberry , narrow row/solid seeding",high,560.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+legumes_deep,5.0,"Bean, coloured excluding kidney and cranberry , narrow row/solid seeding",mid,500.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+legumes_deep,5.0,"Bean, coloured excluding kidney and cranberry , narrow row/solid seeding",low,300.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+legumes_deep,6.0,"Bean, coloured excluding kidney and cranberry , wide row/standard planting",high,0.076,mg a.i./seed,"CRUISER® 5FS Seed Treatment label, Reg. No. 27045",ASSESSMENT_DEFAULT
+legumes_deep,6.0,"Bean, coloured excluding kidney and cranberry , wide row/standard planting",low,0.045,mg a.i./seed,"CRUISER® 5FS Seed Treatment label, Reg. No. 27045",ASSESSMENT_DEFAULT
+legumes_deep,7.0,"Bean, coloured excluding kidney and cranberry , wide row/standard planting",high,560.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+legumes_deep,7.0,"Bean, coloured excluding kidney and cranberry , wide row/standard planting",mid,500.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+legumes_deep,7.0,"Bean, coloured excluding kidney and cranberry , wide row/standard planting",low,300.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+legumes_deep,8.0,"Bean, kidney and cranberry",high,0.076,mg a.i./seed,"CRUISER® 5FS Seed Treatment label, Reg. No. 27045",ASSESSMENT_DEFAULT
+legumes_deep,8.0,"Bean, kidney and cranberry",low,0.045,mg a.i./seed,"CRUISER® 5FS Seed Treatment label, Reg. No. 27045",ASSESSMENT_DEFAULT
+legumes_deep,9.0,"Bean, kidney and cranberry",high,560.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+legumes_deep,9.0,"Bean, kidney and cranberry",mid,500.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+legumes_deep,9.0,"Bean, kidney and cranberry",low,300.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+legumes_deep,10.0,"Bean, lima",high,500.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+legumes_deep,10.0,"Bean, lima",low,300.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+legumes_deep,11.0,"Bean, navy/white and black, narrow row/solid seeding",high,0.076,mg a.i./seed,"CRUISER® 5FS Seed Treatment label, Reg. No. 27045",ASSESSMENT_DEFAULT
+legumes_deep,11.0,"Bean, navy/white and black, narrow row/solid seeding",low,0.045,mg a.i./seed,"CRUISER® 5FS Seed Treatment label, Reg. No. 27045",ASSESSMENT_DEFAULT
+legumes_deep,12.0,"Bean, navy/white and black, narrow row/solid seeding",high,560.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+legumes_deep,12.0,"Bean, navy/white and black, narrow row/solid seeding",mid,500.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+legumes_deep,12.0,"Bean, navy/white and black, narrow row/solid seeding",low,300.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+legumes_deep,13.0,"Bean, navy/white and black, wide row/standard planting",high,0.076,mg a.i./seed,"CRUISER® 5FS Seed Treatment label, Reg. No. 27045",ASSESSMENT_DEFAULT
+legumes_deep,13.0,"Bean, navy/white and black, wide row/standard planting",low,0.045,mg a.i./seed,"CRUISER® 5FS Seed Treatment label, Reg. No. 27045",ASSESSMENT_DEFAULT
+legumes_deep,14.0,"Bean, navy/white and black, wide row/standard planting",high,560.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+legumes_deep,14.0,"Bean, navy/white and black, wide row/standard planting",mid,500.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+legumes_deep,14.0,"Bean, navy/white and black, wide row/standard planting",low,300.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+legumes_deep,15.0,"Bean, Vigna anugularis  (adzuki bean) or Vigna unguiculata (yardlong bean /cowpea/black-eyed pea/southern pea/crowder pea/ /Chinese long bean)",high,0.076,mg a.i./seed,"CRUISER® 5FS Seed Treatment label, Reg. No. 27045",ASSESSMENT_DEFAULT
+legumes_deep,15.0,"Bean, Vigna anugularis  (adzuki bean) or Vigna unguiculata (yardlong bean /cowpea/black-eyed pea/southern pea/crowder pea/ /Chinese long bean)",low,0.045,mg a.i./seed,"CRUISER® 5FS Seed Treatment label, Reg. No. 27045",ASSESSMENT_DEFAULT
+legumes_deep,16.0,"Bean, Vigna anugularis  (adzuki bean) or Vigna unguiculata (yardlong bean /cowpea/black-eyed pea/southern pea/crowder pea/ /Chinese long bean)",high,560.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+legumes_deep,16.0,"Bean, Vigna anugularis  (adzuki bean) or Vigna unguiculata (yardlong bean /cowpea/black-eyed pea/southern pea/crowder pea/ /Chinese long bean)",mid,500.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+legumes_deep,16.0,"Bean, Vigna anugularis  (adzuki bean) or Vigna unguiculata (yardlong bean /cowpea/black-eyed pea/southern pea/crowder pea/ /Chinese long bean)",low,300.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+legumes_deep,17.0,"Chickpea, Desi",high,300.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+legumes_deep,17.0,"Chickpea, Desi",mid,200.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+legumes_deep,17.0,"Chickpea, Desi",low,100.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+legumes_deep,18.0,"Chickpea, Kabuli",high,300.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+legumes_deep,18.0,"Chickpea, Kabuli",mid,200.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+legumes_deep,18.0,"Chickpea, Kabuli",low,100.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+legumes_deep,19.0,Lentil,high,300.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+legumes_deep,19.0,Lentil,mid,200.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+legumes_deep,19.0,Lentil,low,100.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+legumes_deep,20.0,"Pea, field/dry pulse",high,500.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+legumes_deep,20.0,"Pea, field/dry pulse",mid,300.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+legumes_deep,20.0,"Pea, field/dry pulse",low,100.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+legumes_shallow,1.0,"Bean, snap",high,500.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+legumes_shallow,1.0,"Bean, snap",low,300.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+legumes_shallow,2.0,Lupin,high,300.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+legumes_shallow,2.0,Lupin,mid,200.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+legumes_shallow,2.0,Lupin,low,100.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+legumes_shallow,3.0,"Pea, horticultural/vegetable",high,500.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+legumes_shallow,3.0,"Pea, horticultural/vegetable",low,300.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+legumes_shallow,4.0,Soybean,high,300.0,mg a.i./kg seed,VUI 3622323,ASSESSMENT_DEFAULT
+legumes_shallow,5.0,Soybean,high,0.045,mg a.i./seed,CRUISER® 5FS Seed Treatment label Reg. No. 27045,ASSESSMENT_DEFAULT
+cucurbits,1.0,"Cucumber, processing, including pickling and gherkin",high,0.75,mg a.i./seed,VUI 3622323,ASSESSMENT_DEFAULT
+cucurbits,1.0,"Cucumber, processing, including pickling and gherkin",low,0.25,mg a.i./seed,VUI 3622323,ASSESSMENT_DEFAULT
+cucurbits,2.0,"Cucumber, fresh market",high,0.75,mg a.i./seed,VUI 3622323,ASSESSMENT_DEFAULT
+cucurbits,2.0,"Cucumber, fresh market",low,0.25,mg a.i./seed,VUI 3622323,ASSESSMENT_DEFAULT
+cucurbits,3.0,Gourd,high,0.75,mg a.i./seed,VUI 3622323,ASSESSMENT_DEFAULT
+cucurbits,3.0,Gourd,low,0.25,mg a.i./seed,VUI 3622323,ASSESSMENT_DEFAULT
+cucurbits,4.0,"Gourd, bitter",high,0.75,mg a.i./seed,VUI 3622323,ASSESSMENT_DEFAULT
+cucurbits,4.0,"Gourd, bitter",low,0.25,mg a.i./seed,VUI 3622323,ASSESSMENT_DEFAULT
+cucurbits,5.0,Melon (excluding citron and watermelon),high,0.75,mg a.i./seed,VUI 3622323,ASSESSMENT_DEFAULT
+cucurbits,5.0,Melon (excluding citron and watermelon),low,0.25,mg a.i./seed,VUI 3622323,ASSESSMENT_DEFAULT
+cucurbits,6.0,"Melon, citron and watermelon",high,0.75,mg a.i./seed,VUI 3622323,ASSESSMENT_DEFAULT
+cucurbits,6.0,"Melon, citron and watermelon",low,0.25,mg a.i./seed,VUI 3622323,ASSESSMENT_DEFAULT
+cucurbits,7.0,"Squash, summer",high,0.75,mg a.i./seed,VUI 3622323,ASSESSMENT_DEFAULT
+cucurbits,7.0,"Squash, summer",low,0.25,mg a.i./seed,VUI 3622323,ASSESSMENT_DEFAULT
+cucurbits,8.0,"Squash, winter",high,0.75,mg a.i./seed,VUI 3622323,ASSESSMENT_DEFAULT
+cucurbits,8.0,"Squash, winter",low,0.25,mg a.i./seed,VUI 3622323,ASSESSMENT_DEFAULT

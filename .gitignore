@@ -1,0 +1,31 @@
+# RStudio project-local state (machine-specific, not source)
+.Rproj.user/
+.Rhistory
+.RData
+.Ruserdata
+
+# Python bytecode cache from the reference-extraction helper scripts
+__pycache__/
+*.pyc
+
+# Generated model outputs. Everything under outputs/ is reproducible from
+# data/reference/ + R/ via scripts/build_canonical_outputs.R and is large
+# (the current build is ~24 MB, dominated by daily_timecourse.csv.gz and
+# table162_support.csv). Regenerate; do not commit.
+outputs/
+
+# Generated reports (Quarto/R Markdown renders), once reports/ is in use.
+reports/*
+!reports/.gitkeep
+
+# Ad hoc user scenario exports/imports, once data/scenarios/ is in use.
+data/scenarios/*
+!data/scenarios/.gitkeep
+
+# Processed/derived data cache, once data/processed/ is in use.
+data/processed/*
+!data/processed/.gitkeep
+
+# OS noise
+Thumbs.db
+.DS_Store

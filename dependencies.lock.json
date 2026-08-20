@@ -1,0 +1,37 @@
+{
+  "generated_at": "2026-08-20T07:34:00-0400",
+  "r_version": "4.4.3",
+  "platform": "x86_64-w64-mingw32",
+  "specification_version": "1.0.0",
+  "note": "Equivalent to an renv lock file. renv itself is not installable in this environment because CRAN is unreachable. Verify with 'Rscript scripts/check_environment.R'.",
+  "packages": {
+    "readr": "2.2.0",
+    "dplyr": "1.2.1",
+    "tibble": "3.3.1",
+    "tidyr": "1.3.2",
+    "rlang": "1.2.0",
+    "vctrs": "0.7.3",
+    "ggplot2": "4.0.3",
+    "scales": "1.4.0",
+    "officer": "0.7.3",
+    "flextable": "0.9.11",
+    "writexl": "1.5.4",
+    "svglite": "2.2.2",
+    "rmarkdown": "2.31",
+    "knitr": "1.51",
+    "digest": "0.6.39",
+    "shiny": "1.14.0",
+    "bslib": "0.10.0",
+    "DT": "0.34.0",
+    "htmltools": "0.5.9",
+    "testthat": "3.3.2",
+    "withr": "3.0.2"
+  },
+  "optional_not_installed": {
+    "renv": "Preferred dependency manager. Not installable without CRAN access; this script is the substitute.",
+    "plotly": "Interactive plots. The dashboard uses static ggplot2 output instead, which keeps the dependency footprint small.",
+    "openxlsx": "Alternative XLSX writer. writexl is used instead.",
+    "quarto": "Alternative reporting engine. rmarkdown is used instead.",
+    "shinytest2": "Browser-level Shiny tests. Reactive logic is covered by shiny::testServer."
+  }
+}

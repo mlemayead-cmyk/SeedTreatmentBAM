@@ -1,0 +1,7 @@
+receptor_id,taxon,size_class,body_weight_g,fir_regression_name,fir_coefficient_a,fir_exponent_b,food_intake_g_dw_per_day,msa_short_term_m2,msa_long_term_m2,surface_seed_only,source,status
+bird_small,bird,small,20.0,"Nagy 1987, Passerines",0.398,0.85,5.078770266809547,70.0,35.0,TRUE,Workbook 'FIR Assumptions' and 'Further Risk Characterization' sheets,ASSESSMENT_DEFAULT
+bird_medium,bird,medium,100.0,"Nagy 1987, Passerines",0.398,0.85,19.94725189836544,70.0,35.0,TRUE,Workbook 'FIR Assumptions' and 'Further Risk Characterization' sheets,ASSESSMENT_DEFAULT
+bird_large,bird,large,1000.0,"Nagy 1987, All birds",0.648,0.651,58.153385883648525,140.0,70.0,TRUE,Workbook 'FIR Assumptions' and 'Further Risk Characterization' sheets,ASSESSMENT_DEFAULT
+mammal_small,mammal,small,15.0,"Nagy 1987, All eutherians",0.235,0.822,2.176781697501487,70.0,35.0,FALSE,Workbook 'FIR Assumptions' and 'Further Risk Characterization' sheets,ASSESSMENT_DEFAULT
+mammal_medium,mammal,medium,35.0,"Nagy 1987, All eutherians",0.235,0.822,4.3680921800285555,70.0,35.0,FALSE,Workbook 'FIR Assumptions' and 'Further Risk Characterization' sheets,ASSESSMENT_DEFAULT
+mammal_large,mammal,large,1000.0,"Nagy 1987, All eutherians",0.235,0.822,68.71758087931835,70.0,35.0,FALSE,Workbook 'FIR Assumptions' and 'Further Risk Characterization' sheets,ASSESSMENT_DEFAULT
