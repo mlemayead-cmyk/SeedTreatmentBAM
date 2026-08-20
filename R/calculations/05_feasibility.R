@@ -119,3 +119,72 @@ diet_fraction_is_feasible <- function(diet_fraction,
   check_recyclable(diet_fraction, max_feasible_diet_fraction)
   max_feasible_diet_fraction >= diet_fraction
 }
+
+#' Which maximum-search-area term applies to a given taxon and duration class
+#'
+#' This is NOT a general "acute = short-term, chronic = long-term" rule
+#' invented for this model. It is grounded directly in the source
+#' assessment's own stated methodology (assessment paragraph `MAIN-P000209`,
+#' review register `ASSUMPTION-012` through `ASSUMPTION-016`):
+#'
+#' \itemize{
+#'   \item \strong{Birds always use the short-term MSA}, for both acute and
+#'     chronic/reproductive characterization. The assessment explicitly
+#'     states that a long-term MSA was "not considered" for birds, "because
+#'     there was a paucity of evidence to suggest that observed effects on
+#'     reproduction were due to a long-term exposure, as opposed to parental
+#'     exposure occurring over [a] critical window within the reproductive
+#'     cycle."
+#'   \item \strong{Mammals use the short-term MSA for acute characterization
+#'     and the long-term MSA for chronic/reproductive characterization.} The
+#'     assessment attributes mammalian reproductive effects to prolonged
+#'     parental exposure, unlike birds, and states this explicitly as the
+#'     basis for applying a long-term MSA to mammals.
+#' }
+#'
+#' A `receptor_parameters.csv` row for a bird nonetheless stores a
+#' `msa_long_term_m2` value, and the existing manually-toggled `msa_term`
+#' argument to [resolve_receptors] will honour a user's request for it if
+#' asked (used by the pre-existing "Exposure feasibility" diagnostic, which
+#' is a manual what-if tool and is unchanged by this function). This
+#' function exists so that analyses which must follow the assessment's own
+#' policy automatically -- rather than trust a manual toggle -- can do so
+#' without guessing.
+#'
+#' @param taxon `"bird"` or `"mammal"`.
+#' @param duration_class `"acute"` or `"chronic"`.
+#' @return `"short"` or `"long"`.
+#' @export
+resolve_msa_term_for_metric <- function(taxon, duration_class) {
+  check_choice(taxon, "taxon", c("bird", "mammal"))
+  check_choice(duration_class, "duration_class", c("acute", "chronic"))
+  check_recyclable(taxon, duration_class)
+  stbam_ifelse(
+    taxon == "bird", "short",
+    stbam_ifelse(duration_class == "acute", "short", "long")
+  )
+}
+
+#' Maximum treated seed a receptor could actually consume in a day
+#'
+#' Caps the number of seeds required to meet an assumed dietary fraction at
+#' the number of treated seeds actually available within the applicable
+#' maximum search area. Does **not** assume every available seed is eaten if
+#' that would exceed the receptor's food requirement -- the receptor is never
+#' modelled as consuming more than it needs, only ever less than it needs
+#' when seed is scarce.
+#'
+#' @param seeds_required_per_day Seeds needed to meet the assumed dietary
+#'   fraction, seeds/day (see [seeds_required_per_day]).
+#' @param seeds_available_within_msa Treated seeds available within the
+#'   applicable search area (see [available_seed_within_msa]).
+#' @return Seeds actually obtainable, seeds/day. Never exceeds either input.
+#' @export
+max_obtainable_seeds_per_day <- function(seeds_required_per_day,
+                                         seeds_available_within_msa) {
+  check_numeric(seeds_required_per_day, "seeds_required_per_day", min = 0)
+  check_numeric(seeds_available_within_msa, "seeds_available_within_msa",
+                min = 0)
+  check_recyclable(seeds_required_per_day, seeds_available_within_msa)
+  pmin(seeds_required_per_day, seeds_available_within_msa)
+}

@@ -168,7 +168,7 @@ manifest <- tibble::tibble(
   built_at = format(started, "%Y-%m-%dT%H:%M:%S%z"),
   workbook = workbook,
   parameter_set = params$name,
-  specification_version = "1.0.0"
+  specification_version = STBAM_MODEL_VERSION
 )
 readr::write_csv(manifest, file.path(out_dir, "build_manifest.csv"))
 

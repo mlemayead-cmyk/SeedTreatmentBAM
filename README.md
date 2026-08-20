@@ -38,10 +38,15 @@ fields that the software never populates (see
 # 4. Launch the dashboard
 "C:\Program Files\R\R-4.4.3\bin\x64\Rscript.exe" scripts\run_app.R
 # then open http://127.0.0.1:8080
+
+# 5. Generate the priority self-contained exposure/risk figures (no Shiny)
+"C:\Program Files\R\R-4.4.3\bin\x64\Rscript.exe" scripts\generate_priority_exposure_figures.R
 ```
 
 See `docs/manual_shiny_smoke_test.md` for a guided first look at the
 dashboard, and `docs/developer_guide.md` for the full command reference.
+See `docs/priority_exposure_figures.md` for static-figure coverage, grouping,
+calculation definitions and output locations.
 
 ## Documentation map
 

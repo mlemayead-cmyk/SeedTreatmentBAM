@@ -1,7 +1,7 @@
 # Scientific model specification
 
 **Model:** Bird and Mammal Seed-Treatment Risk Assessment Model (`stbam`)
-**Specification version:** 1.0.0
+**Specification version:** 1.2.0
 **Status:** Canonical model contract. Any change to an equation, unit or default
 must be made here first and then in code.
 
@@ -594,6 +594,51 @@ A capped dose is available as a clearly separate, explicitly named column
 substituted for the regulatory value, and the user interface presents the two in
 separate views.
 
+### 10.4 Maximum-obtainable exposure within the assessment MSA
+
+For static risk characterization, the model also reports a second, explicitly
+named quantity: the maximum exposure obtainable from treated seed accessible
+within the applicable MSA. This is a diagnostic/refinement and never replaces
+the conventional conditional dietary RQ described in §10.3.
+
+For each day and receptor:
+
+```
+seeds_required(t) = FIR / seed_mass × assumed_diet_fraction
+seeds_available_in_MSA(t) = accessible_seed_density(t) × applicable_MSA
+
+maximum_obtainable_seeds(t)
+  = min(seeds_required(t), seeds_available_in_MSA(t))
+
+maximum_obtainable_intake(t)
+  = maximum_obtainable_seeds(t) × a.i._per_seed(t)
+
+maximum_obtainable_dose(t)
+  = maximum_obtainable_intake(t) / body_weight
+
+maximum_obtainable_RQ(t)
+  = maximum_obtainable_dose(t) / effects_metric
+```
+
+The minimum is essential: an animal is never assumed to consume every seed in
+the MSA when that would exceed its daily food requirement. Conversely, when
+seed is scarce, obtainable intake never exceeds the seed actually available
+within the MSA. The conditional RQ remains independently available and is not
+silently capped.
+
+The applicable MSA follows the source assessment policy in paragraph
+`MAIN-P000209`, not a generic acute/short-term and chronic/long-term mapping:
+
+- birds use the short-term MSA for both acute and chronic/reproductive
+  characterization, because the assessment did not apply a long-term bird MSA;
+- mammals use the short-term MSA for acute characterization and the long-term
+  MSA for chronic/reproductive characterization.
+
+For the publication figures, the day on which maximum-obtainable RQ falls below
+the LOC is solved exactly as a piecewise first-order curve. Before seed becomes
+limiting it follows residue DT50. After seed becomes limiting it follows the
+combined DT50 `1 / (1/DT50_residue + 1/DT50_surface_seed)`.
+
 ---
 
 ## 11. Canonical result datasets
@@ -769,3 +814,4 @@ raise an error:
 |---|---|---|
 | 1.0.0 | 2026-08-19 | Initial specification reconstructed from the audited Small Cereals workbook and the Phase 3A review record. |
 | 1.1.0 | 2026-08-20 | Corrections following the independent adversarial audit (`docs/independent_engine_audit.md`; zero confirmed or potential numerical errors found). §4.2 rewritten to describe the implemented 2×2 seed-count grid rather than a one-dimensional bracket (the code was correct; the specification was not). §4.1's workbook citation corrected. §5.4 notes the engine's two additional, non-workbook-sourced field-rate cells. §9.7 adds a rounding note. §10.1 documents the time-dependence of the non-surface-restricted (mammal) accessible pool. §13's acceptance criterion reworded to compare against exact recomputation rather than the fixture file's own rounded values, and marked not yet machine-enforced. Three engine robustness defects found by the audit (`diet_fraction = 0` crash, `clear_override()` default-scope failure, stale mass rate after a `seeds_per_ha` override) were corrected in code and covered by new regression tests; see `PROJECT_STATE.md` and `docs/model_validation_report.md` for detail. |
+| 1.2.0 | 2026-08-20 | Added §10.4: the explicitly separate maximum-obtainable exposure/RQ diagnostic, its food-requirement and MSA availability caps, the assessment-specific bird/mammal MSA policy, and the exact piecewise LOC-crossing calculation used by the publication-figure summary. The validated conventional dietary dose and RQ equations are unchanged. |

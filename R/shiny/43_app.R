@@ -16,6 +16,8 @@ stbam_ui <- function() {
                      mod_overview_ui("overview")),
     bslib::nav_panel("Exposure through time", shiny::icon("chart-line"),
                      mod_timecourse_ui("timecourse")),
+    bslib::nav_panel("Maximum obtainable exposure", shiny::icon("seedling"),
+                     mod_max_obtainable_ui("max_obtainable")),
     bslib::nav_panel("Exposure feasibility", shiny::icon("magnifying-glass"),
                      mod_feasibility_ui("feasibility")),
     bslib::nav_panel("Comparison", shiny::icon("chart-column"),
@@ -89,6 +91,7 @@ stbam_server <- function(baseline) {
 
     mod_overview_server("overview", safe_results)
     mod_timecourse_server("timecourse", safe_results)
+    mod_max_obtainable_server("max_obtainable", baseline, inputs, safe_results)
     mod_feasibility_server("feasibility", safe_results)
     mod_comparison_server("comparison", safe_results)
     mod_tables_server("tables", safe_results)

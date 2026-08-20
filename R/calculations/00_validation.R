@@ -148,3 +148,20 @@ STBAM_PLANTING_METHODS <- c("broadcast", "drill_spring", "drill_fall", "precisio
 #' (ASSUMPTION-004).
 #' @export
 STBAM_CLOTHIANIDIN_MOLAR_RATIO <- 249.68 / 291.7
+
+#' Level-of-concern threshold for risk quotients
+#'
+#' RQ >= this value indicates the effects metric is reached or exceeded. Kept
+#' as a named constant, not a literal `1` scattered through plotting and
+#' summary code, so a different LOC could be substituted for a metric where
+#' one applies without hunting for hard-coded values. No effects metric in
+#' the current register uses a different LOC.
+#' @export
+STBAM_DEFAULT_LOC <- 1
+
+#' Specification/model version, for figure and export provenance
+#'
+#' Matches the version at the top of the change-control table in
+#' `docs/scientific_model_specification.md`. Update both together.
+#' @export
+STBAM_MODEL_VERSION <- "1.2.0"

@@ -11,7 +11,8 @@ test_that("the user interface builds with every expected section", {
   ui <- stbam_ui()
   html <- as.character(htmltools::renderTags(ui)$html)
   for (section in c("Scenario and inputs", "Overview", "Exposure through time",
-                    "Exposure feasibility", "Comparison", "Official tables",
+                    "Maximum obtainable exposure", "Exposure feasibility",
+                    "Comparison", "Official tables",
                     "Table 162 support", "Sensitivity")) {
     expect_true(grepl(section, html, fixed = TRUE), info = section)
   }
