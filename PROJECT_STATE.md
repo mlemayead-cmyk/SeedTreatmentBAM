@@ -1,6 +1,6 @@
 # Project state and restart guide
 
-Last saved: 2026-08-20 15:40 -04:00 (America/Toronto)
+Last saved: 2026-08-20 13:40 -04:00 (America/Toronto)
 
 ## Current phase: maximum-obtainable-exposure feature — implemented, independently reviewed, findings corrected
 
@@ -45,9 +45,18 @@ but now driving a headline number rather than a diagnostic flag) are in
 that before relying on a mammal maximum-obtainable figure for anything
 consequential. Bird figures have no open finding.
 
-Historical note, kept for context:
-`docs/max_obtainable_exposure_review.md` for whether it has landed, and
-this file's own next-step notes once it has.
+**Priority bird figure batch complete.** The full assessment-default run of
+`scripts/generate_priority_exposure_figures.R` completed on 2026-08-20 in
+14.8 minutes. It produced 20,064 summary rows for 836 unique canonical
+scenarios x 3 bird receptors x 8 bird effects metrics, selected 72 actual
+agronomic-envelope rows, and exported 288 logical figures as 288 PNG plus
+288 SVG files. Every one of the 576 manifest entries was independently
+checked for existence, byte count and SHA-256; all passed. Representative
+main, process and assumed-dietary-fraction figures from all three crop groups
+were visually checked and were readable and unclipped. Generated artifacts
+are under `outputs/figures/` (gitignored); interpretation is summarized in
+`docs/priority_exposure_figures.md` and the generated
+`outputs/figures/README_priority_figures.md`.
 
 ## What this project is
 

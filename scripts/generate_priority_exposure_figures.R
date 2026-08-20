@@ -80,6 +80,26 @@ screening_metrics <- bird_metrics[
 ]
 
 out_root <- file.path(root, "outputs", "figures")
+# A complete batch is a reproducible snapshot. Remove only this script's
+# dedicated generated-output directory so identifiers or scenario selections
+# changed since an earlier run cannot leave stale, apparently current figures.
+# A smoke run intentionally preserves an existing complete batch.
+if (!smoke && dir.exists(out_root)) {
+  expected_parent <- normalizePath(file.path(root, "outputs"), winslash = "/",
+                                   mustWork = TRUE)
+  resolved_out <- normalizePath(out_root, winslash = "/", mustWork = TRUE)
+  if (!identical(dirname(resolved_out), expected_parent) ||
+      !identical(basename(resolved_out), "figures")) {
+    stop("Refusing to clean an unexpected output path: ", resolved_out,
+         call. = FALSE)
+  }
+  cat("Removing the previous generated figure snapshot ...\n")
+  unlink(resolved_out, recursive = TRUE, force = TRUE)
+  if (dir.exists(resolved_out)) {
+    stop("Could not remove the previous generated figure snapshot.",
+         call. = FALSE)
+  }
+}
 dir.create(out_root, recursive = TRUE, showWarnings = FALSE)
 for (group in unname(group_folders)) {
   for (subdir in c("acute", "chronic", "process", "dietary_fraction")) {
@@ -343,26 +363,45 @@ selection_document <- c(
   "## What the figures present",
   "",
   paste(
-    "The acute and chronic main figures compare the conventional conditional",
-    "RQ for a 100% treated-seed diet with the maximum RQ actually obtainable",
-    "from treated surface seed within the applicable MSA. The latter caps",
-    "consumption at the smaller of the bird's daily food requirement and the",
-    "seed available within the MSA; it never replaces the conditional RQ."
+    "These figures show how predicted dietary risk changes during the 120 days",
+    "after sowing. They separate a standard conservative exposure assumption",
+    "from an estimate constrained by the amount of treated seed present."
   ),
   "",
   paste(
-    "The dashed line is the LOC (RQ = 1). When the two curves overlap, field",
-    "seed is sufficient for the conditional diet. When maximum-obtainable RQ",
-    "is lower, seed availability is limiting. Panels show small, medium and",
-    "large birds with independently scaled RQ axes, as stated in each caption."
+    "In the main figures, the blue curve assumes the bird obtains 100% of its",
+    "daily dry-weight food requirement as treated seed, regardless of field",
+    "availability. The orange curve caps consumption at the smaller of that",
+    "food requirement and the treated surface seed available within the bird's",
+    "maximum search area (MSA). It is an availability refinement and does not",
+    "replace or alter the conventional conditional calculation."
   ),
   "",
   paste(
-    "Process panels show (A) surface seeds/m2, (B) residue mg a.i./seed,",
-    "(C) surface a.i. mg/m2, and (D) seeds available within MSA divided by",
-    "seeds required for a full treated-seed diet. Panel D = 1 is fully",
-    "obtainable; below 1 is seed-limited. Dietary-fraction figures show",
-    "assumed 1-100% treated-seed diets and do not demonstrate obtainability."
+    "The dashed line is the level of concern (RQ = 1). Above 1, modelled dose",
+    "exceeds the selected effects metric; below 1, it does not. RQ is a",
+    "screening ratio, not a probability of harm or evidence of a field effect.",
+    "When blue and orange overlap, enough treated seed is present for the",
+    "conditional diet. When orange is lower, seed availability limits exposure."
+  ),
+  "",
+  paste(
+    "Both curves fall as residue dissipates. Once seed becomes limiting, the",
+    "orange curve can fall faster because it also reflects surface-seed",
+    "disappearance. Panels show small, medium and large birds and use",
+    "independent RQ scales; compare printed axis values and LOC crossings, not",
+    "only apparent line height. Acute and chronic figures use different effects",
+    "metrics; birds use the short-term MSA for both, following the assessment."
+  ),
+  "",
+  paste(
+    "Process panels show (A) accessible surface seeds/m2, (B) residue per seed,",
+    "(C) their product as active ingredient per m2, and (D) seeds available",
+    "within MSA divided by seeds required for a full treated-seed diet. Panel D",
+    "above 1 means sufficient seed, 1 is the transition, and below 1 is",
+    "seed-limited. Dietary-fraction figures are conditional sensitivity",
+    "scenarios for assumed 1-100% treated-seed diets; they do not demonstrate",
+    "that those fractions are obtainable or will be consumed."
   ),
   "",
   "## Coverage",

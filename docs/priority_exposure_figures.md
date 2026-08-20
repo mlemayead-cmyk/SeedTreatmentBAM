@@ -10,46 +10,63 @@ surface seed within the applicable maximum search area (MSA).
 
 ## What the figures are presenting
 
-The main acute and chronic figures compare two different exposure questions
-through time for small, medium and large birds:
+These figures show how predicted dietary risk changes during the 120 days
+after sowing. They deliberately separate a standard conservative exposure
+assumption from an estimate constrained by the amount of treated seed present
+in the field.
 
-- **100% treated-seed diet** is the conventional conditional RQ. It asks what
-  the RQ would be if the bird obtained its entire daily dry-weight food
-  requirement as treated seed. This curve is not capped by the amount of seed
-  physically available in the field.
-- **Maximum obtainable within MSA** asks how much of that exposure the bird
-  could actually obtain from treated surface seed present within its applicable
-  maximum search area. Treated-seed consumption is capped at the smaller of
-  the bird's food requirement and the seed available within the MSA.
-- The horizontal dashed line is the level of concern, **RQ = 1**. A curve above
-  the line exceeds the applicable effects metric; a curve below it does not.
-- The three panels are the small, medium and large bird receptors. Their RQ
-  axes are allowed to differ so each curve remains readable; the caption states
-  this explicitly. Compare numerical axis labels, not only apparent line height.
+In each main acute or chronic figure, the **blue curve** is the conventional
+conditional risk quotient (RQ): it assumes that the bird obtains 100% of its
+daily dry-weight food requirement as treated seed, whether or not that amount
+of seed is actually present. The **orange curve** is the maximum-obtainable RQ:
+treated-seed consumption is capped at the smaller of the bird's daily food
+requirement and the treated surface seed available within its maximum search
+area (MSA). The orange curve is therefore an availability refinement, not a
+replacement for or alteration of the conventional calculation.
 
-When the two main curves overlap, enough treated seed is available within the
-MSA to support the conditional 100% diet. When the maximum-obtainable curve is
-lower, field availability—not the assumed dietary calculation—is limiting
-exposure. Both curves decline as residue dissipates; after seed becomes limiting,
-the maximum-obtainable curve also reflects surface-seed disappearance.
+The horizontal dashed line marks the level of concern, **RQ = 1**. Values above
+1 mean that the modelled dose is greater than the selected effects metric;
+values below 1 mean that it is lower. RQ is a screening ratio, not a probability
+of harm and not evidence that an effect occurred in the field. The most useful
+features to compare are the peak RQ, the time at which each curve drops below 1,
+and the size and timing of the gap between the blue and orange curves.
 
-The four-panel process figure explains that divergence:
+If the blue and orange curves overlap, sufficient treated seed is present within
+the MSA to support the assumed 100% treated-seed diet. If the orange curve lies
+below the blue curve, exposure is limited by field seed availability. Both
+curves decrease as residue dissipates from each remaining seed. Once seed
+availability becomes limiting, the orange curve can decrease more quickly
+because it reflects both residue dissipation and the disappearance of surface
+seed. A low orange RQ should therefore be interpreted as a lower physically
+obtainable exposure under the model assumptions, not as a change to the
+effects endpoint.
 
-- **A — Surface seeds remaining:** treated seeds per m² decline at the
-  surface-seed disappearance DT50.
-- **B — Residue per seed:** mg a.i. per seed declines independently at the
-  residue DT50.
-- **C — Surface active-ingredient loading:** mg a.i./m² is the product of the
-  two declining quantities.
-- **D — Exposure feasibility:** available seeds within each bird's MSA divided
-  by seeds required for a 100% diet. A value of 1 means a full treated-seed diet
-  is obtainable; below 1, exposure is seed-limited.
+The three panels represent small (20 g), medium (100 g) and large (1,000 g)
+birds. Body weight, daily food requirement and MSA differ among them. Each panel
+has an independent RQ scale so its curves remain legible; compare the printed
+axis values and LOC crossings rather than the apparent height of curves across
+panels. Acute and chronic figures use different effects metrics. Consistent with
+the source assessment, birds use the short-term MSA for both characterizations.
 
-The optional dietary-fraction figures show conventional RQ curves for assumed
-1%, 5%, 10%, 25%, 50% and 100% treated-seed diets. They do **not** establish
-that those fractions are obtainable. Their decline is driven by residue
-dissipation per seed; obtainability is evaluated in the main and process
-figures.
+The four-panel process figure shows why the maximum-obtainable curve changes:
+
+- **A — Surface seeds remaining:** the number of accessible treated seeds per
+  m2 declines according to the surface-seed disappearance DT50.
+- **B — Residue remaining per seed:** the active ingredient on each seed
+  declines independently according to the residue DT50.
+- **C — Active ingredient with surface seed:** active ingredient per m2 is the
+  product of the seed count in panel A and residue per seed in panel B.
+- **D — Exposure feasibility:** treated seeds available within each bird's MSA
+  divided by the seeds required for a 100% treated-seed diet. Values above 1
+  indicate sufficient seed, 1 is the transition point, and values below 1
+  indicate that exposure is seed-limited.
+
+The dietary-fraction figures are sensitivity scenarios. They show the
+conventional RQ that would result if treated seed made up an assumed 1%, 5%,
+10%, 25%, 50% or 100% of the diet. They do **not** show that a bird can find or
+will consume those fractions. Their curves decline only with residue per seed;
+physical obtainability must be evaluated from the orange maximum-obtainable
+curve and process panel D.
 
 ## Command
 

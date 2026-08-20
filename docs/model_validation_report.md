@@ -279,16 +279,16 @@ was found not to be honoured end-to-end (harmless today — no registered
 metric uses a LOC other than 1) — fixed so every "above LOC" calculation
 now uses the same threshold.
 
-**Four robustness issues, partially addressed:** the single-scenario plot
+**Four robustness issues, addressed except for one documented caller edge
+case:** the single-scenario plot
 functions now reject mixed scenario/receptor/metric input rather than
 silently mislabelling a figure; missing `metadata_by_receptor` entries now
-fail loudly rather than degrading to a raw internal id. Two lower-severity
-items remain open (not currently reachable through the Shiny UI or the
-static figure script): `duration_above_max_obtainable_rq()` does not
-reject a physically-impossible `max_obtainable_rq > conditional_rq` input,
-and a caller who hand-edits a receptors table gets an internally
-inconsistent row for the MSA specifically (arguably correct policy
-behaviour, but silent).
+fail loudly rather than degrading to a raw internal id; and
+`duration_above_max_obtainable_rq()` now rejects a physically impossible
+`max_obtainable_rq > conditional_rq` input. One lower-severity item remains
+open (not currently reachable through the Shiny UI or static figure script):
+a caller who hand-edits a receptors table gets an internally inconsistent
+row for the MSA specifically (arguably correct policy behaviour, but silent).
 
 **One item requires a subject-matter judgement, not an engineering
 fix — flagged, not resolved by either implementing session:** for
