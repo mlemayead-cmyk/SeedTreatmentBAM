@@ -19,7 +19,7 @@ load_stbam <- function(root = getOption("stbam.project_root", getwd()),
   options(stbam.project_root = root)
   options(stbam.source_dir = file.path(root, "R"))
 
-  required <- c("readr", "dplyr", "tibble", "tidyr", "rlang")
+  required <- c("readr", "dplyr", "tibble", "tidyr", "rlang", "digest")
   missing <- required[!vapply(required, requireNamespace, logical(1),
                               quietly = TRUE)]
   if (length(missing) > 0L) {
@@ -28,7 +28,8 @@ load_stbam <- function(root = getOption("stbam.project_root", getwd()),
   }
 
   layers <- list(
-    core = c("R/calculations", "R/inputs", "R/summaries", "R/validation"),
+    core = c("R/calculations", "R/inputs", "R/summaries", "R/validation",
+             "R/utils"),
     reporting = "R/reporting",
     shiny = "R/shiny"
   )
