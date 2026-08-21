@@ -29,7 +29,7 @@ load_stbam <- function(root = getOption("stbam.project_root", getwd()),
 
   layers <- list(
     core = c("R/calculations", "R/inputs", "R/summaries", "R/validation",
-             "R/utils"),
+             "R/utils", "R/evaluations"),
     reporting = "R/reporting",
     shiny = "R/shiny"
   )

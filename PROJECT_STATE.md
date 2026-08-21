@@ -2,9 +2,114 @@
 
 Last saved: 2026-08-21 (America/Toronto)
 
-## Current phase: `stbam` redesign, Phase 0 (shared infrastructure utilities) — implemented, independently reviewed, findings corrected. STOP before Phase 1.
+## Current phase: `stbam` redesign, Phase 1 (folder/input schema, GUI editing, validation) — implemented. STOP for human review before Phase 2.
 
-**Read this section first if you are resuming after the sections below.**
+**Read this section first.** Phase 0 (below) is complete and unchanged.
+This session implemented **Phase 1 only**, per explicit authorization
+limited to that phase, following `docs/planning/implementation_phases_proposal.md`
+and the readiness review's vertical-slice-first amendment. **Phase 2 was
+not started.**
+
+**What Phase 1 built** (all new files; only two pre-existing files touched,
+both additive one-line/one-block registrations — `R/load_model.R` sources
+the new `R/evaluations/` directory; `scripts/check_environment.R` declares
+`readxl` as required, per ADR-006):
+
+- **`R/evaluations/` (new directory, 7 files)** — the backend, independently
+  testable without Shiny:
+  - `50_schema_registry.R` — the schema for every named-set category
+    (`seeding_sets`, `planting_method_sets`, `receptor_sets`, `effects_sets`,
+    `fate_sets`, `reporting_sets`) and `use_patterns.csv`, verified against
+    the live `data/reference/*.csv` files, not copied unverified from
+    planning prose. Numeric bounds are sourced from the existing
+    `STBAM_OVERRIDABLE` list, not invented.
+  - `51_validation.R` — one schema-driven `validate_table()` used by every
+    entry path (Shiny form, Excel upload); batch-collects every violation.
+  - `52_named_sets.R` — write/read/list/delete for named sets, generic
+    across all 6 categories (no per-category code). Forces every numeric
+    column to `double` on read (`stbam_col_types()`), closing the
+    integer/double hash-alternation risk at the schema boundary.
+  - `53_use_patterns.R` — `use_patterns.csv` read/write with referential
+    integrity against known crops.
+  - `54_evaluation_folder.R` — Create/Open/Clone/Rename/Delete evaluation
+    folders (ADR-002/003/014). Create copies `data/reference/` wholesale as
+    each category's starting "default" set; does **not** perform the
+    `scenario_definitions.csv → use_patterns.csv` transformation or the
+    `STBAM_WORKBOOK_TO_CROP_FAMILY` extraction — both are explicitly
+    Phase 2 migration tickets, deliberately not pulled forward.
+  - `55_excel_roundtrip.R` — `writexl`/`readxl` export/import with
+    validate-before-replace (a failed upload never overwrites a saved file).
+  - `56_save.R` — dirty-state tracking + per-table save + whole-evaluation
+    save-all (all-or-nothing), independent of Shiny.
+- **`R/shiny/50_module_picker.R` through `54_app_evaluations.R` (new
+  files)** — a picker screen (Create/Open/Clone/Rename/Delete) and a
+  generic per-category grid+form+Excel+save editor, instantiated once per
+  category (one implementation, not six). **The legacy app (`app/app.R`,
+  `R/shiny/40_*.R`–`44_*.R`) was not modified** — this is a separate app,
+  launched via `scripts/run_evaluations_app.R` / `app_evaluations/app.R`
+  (ADR-020). Confirmed to launch and serve content (HTTP 200, no
+  server-side errors); the picker/grid/form UI was not manually
+  click-tested in a browser this session — the backend it calls into is
+  fully covered by automated tests (131 new assertions).
+- **`tests/testthat/test-14-phase1-evaluations.R`** — 131 new assertions:
+  batch validation, write/read-after-write, scientific-content round-trip
+  identity (Phase 0's `stbam_content_hash()`, order-independent), I15
+  (invalid write never replaces a saved valid file — set data, manifest,
+  and `use_patterns.csv` all covered), multiple named sets coexisting,
+  I7 (reporting schemes structurally cannot key on a non-crop dimension),
+  Excel round-trip (valid and invalid uploads), dirty-state/save-all
+  all-or-nothing, `getwd()`-independence, and no dependency on the legacy
+  override layer.
+
+**One implementation-time schema finding, not invented:** the live
+`data/reference/planting_method_parameters.csv`'s `broadcast` row has a
+literal `NA` in its `source` column — discovered when the vertical slice's
+own "populate defaults from `data/reference/`" step tried to validate it.
+Fixed by marking that column not-required in the schema (reflecting the
+real data), not by inventing a value. A second implementation-time
+decision: `planting_method_parameters.csv`'s surface-seed-fraction data
+became its own named-set category (`agronomy/planting_method_sets/`)
+rather than being folded into `seeding_sets` or treated as metadata, per
+the human instruction that planting method is scientifically load-bearing.
+
+**Hash type-normalization investigation (human instruction item 8):**
+confirmed real. `readr::read_csv()`'s default type-guessing gives a
+whole-number column `integer` and a non-whole column `double`, so a
+CSV-round-tripped value and an in-memory `double` (e.g. from a future
+Shiny `numericInput`) would hash differently under Phase 0's
+`stbam_content_hash()` even when scientifically identical — demonstrated
+in a dedicated test. **Fixed at the schema/read boundary**
+(`stbam_col_types()` forces every numeric schema column to `col_double()`
+unconditionally), not by touching the Phase 0 hash primitive. A second
+test confirms `read_named_set()` never produces an integer-typed column
+regardless of whether the on-disk values look whole, and that the result
+hashes identically to an in-memory double built the way Shiny would build
+one.
+
+**Tests:** starting baseline 670/670 (confirmed unchanged before any
+edit). Final: **801/801 passing** (670 pre-existing + 131 new), 0
+failures, 0 regressions, run with the full `core`+`reporting`+`shiny`
+layer loaded (so the new Shiny module files are included in the load-time
+check, not just the backend).
+
+**Independent review:** ADR-019 does not mandate independent review for
+Phase 1 category-wide (routine GUI/plumbing); no Phase 1 ticket this
+session raised a specific concern warranting escalation. Human
+review/approval is still required before Phase 2, per the standing
+instruction.
+
+**Not implemented in Phase 1 (explicitly out of scope, confirmed
+unimplemented):** runs, raw/grouped results, tables, figures, the
+Phase 2 migration transformation/adapter, Table 162 redesign, Sensitivity
+redesign. No file under `R/calculations/` was touched; no scientific
+calculation semantics changed.
+
+**Immediate next step:** human review of Phase 1, then explicit
+authorization before Phase 2 (migration) begins.
+
+## Prior phase: `stbam` redesign, Phase 0 (shared infrastructure utilities) — implemented, independently reviewed, findings corrected
+
+**Read this section if you need Phase 0's own detail.**
 A separate, prior-session architecture/planning phase produced a full
 redesign specification under `docs/planning/` (evaluation/run/results
 architecture, migration plan, 8-phase implementation proposal 0-7 with

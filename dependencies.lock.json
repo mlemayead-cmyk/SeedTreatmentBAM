@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-08-20T07:34:00-0400",
+  "generated_at": "2026-08-21T11:42:43-0400",
   "r_version": "4.4.3",
   "platform": "x86_64-w64-mingw32",
-  "specification_version": "1.2.0",
+  "specification_version": "1.0.0",
   "note": "Equivalent to an renv lock file. renv itself is not installable in this environment because CRAN is unreachable. Verify with 'Rscript scripts/check_environment.R'.",
   "packages": {
     "readr": "2.2.0",
@@ -24,6 +24,7 @@
     "bslib": "0.10.0",
     "DT": "0.34.0",
     "htmltools": "0.5.9",
+    "readxl": "1.4.5",
     "testthat": "3.3.2",
     "withr": "3.0.2"
   },

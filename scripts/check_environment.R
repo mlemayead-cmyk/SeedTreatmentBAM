@@ -23,6 +23,8 @@ REQUIRED <- c(
   "rmarkdown", "knitr", "digest",
   # Interface
   "shiny", "bslib", "DT", "htmltools",
+  # Evaluation input editing (Phase 1: Excel round-trip, ADR-006)
+  "readxl",
   # Testing
   "testthat", "withr"
 )
