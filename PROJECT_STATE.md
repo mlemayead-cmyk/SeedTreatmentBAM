@@ -1,8 +1,78 @@
 # Project state and restart guide
 
-Last saved: 2026-08-20 13:40 -04:00 (America/Toronto)
+Last saved: 2026-08-21 (America/Toronto)
 
-## Current phase: maximum-obtainable-exposure feature — implemented, independently reviewed, findings corrected
+## Current phase: `stbam` redesign, Phase 0 (shared infrastructure utilities) — implemented, independently reviewed, findings corrected. STOP before Phase 1.
+
+**Read this section first if you are resuming after the sections below.**
+A separate, prior-session architecture/planning phase produced a full
+redesign specification under `docs/planning/` (evaluation/run/results
+architecture, migration plan, 8-phase implementation proposal 0-7 with
+6a/6b, invariants I1-I17, ADR-001 through ADR-020). That planning package
+is currently **untracked in git** (`docs/planning/`,
+`docs/current_implementation_inventory.md`) — it was deliberately left
+uncommitted by this session per its explicit instruction to make only
+Phase 0 production-code changes; committing the planning package itself
+is an open item, not an oversight (see "Immediate next step" below).
+
+This session implemented and closed **Phase 0 only**, per explicit
+authorization limited to that phase. **Phase 1 was not started.** Commit
+`5b999f5` ("Phase 0: peak-finder and content-hash shared infrastructure
+utilities"): two new files under a new `R/utils/` directory
+(`00_peak_finder.R`, `01_content_hash.R`), a 2-line addition to
+`R/load_model.R` (registers `R/utils` as a sourced directory; adds
+`digest` to the dependency preflight list), and a new test file
+(`tests/testthat/test-13-phase0-utilities.R`, 83 assertions). **No file
+under `R/calculations/`, `R/inputs/`, `R/summaries/`, `R/reporting/`, or
+`R/shiny/` was touched** — confirmed by `git diff --stat` before
+committing. `STBAM_MODEL_VERSION` is unchanged.
+
+**What Phase 0 built:**
+- `stbam_find_peak()` / `stbam_peak_over_function()` — a general-purpose
+  argmax search over a day/value series, establishing "peak is a
+  calculated argmax, not permanently synonymous with day 0" (ADR-009)
+  without touching any validated calculation. A regression test confirms
+  it reproduces the current model's own hard-coded `peak_rq_day = 0` by
+  genuine search, not assumption — the current model's own peak is,
+  correctly, still day 0.
+- `stbam_canonicalize_table()` / `stbam_content_hash()` /
+  `stbam_file_content_hash()` / `stbam_hash_string()` — deterministic
+  SHA-256 content hashing for future run-identity/deduplication use
+  (`run_lifecycle_and_validation.md` §2), order-independent across rows,
+  columns, and named table slots.
+
+**Independent adversarial review (ADR-019) — two passes, both by a
+separate agent process with no prior exposure to the implementation**,
+following the existing `docs/independent_engine_audit.md` methodology.
+First pass: peak-finder found sound outright (unreachable from any
+calculation path, no day-0 special-casing); 3 confirmed defects in the
+hash utility (locale-dependent `sort()` defeating cross-machine
+determinism, signed zero `-0`/`0` hashing differently, column type
+erased so e.g. a logical and character column could collide) and 2
+robustness issues in the peak-finder (silent NA-coercion of a malformed
+callback, `n_tied` counting rows instead of distinct days) — all 6 fixed
+with dedicated regression tests. Second pass (re-review of the fixes,
+not self-certified): confirmed all 6 genuinely closed, found one further
+minor issue in the fix itself (the NA-coercion fix over-rejected R's own
+idiomatic bare `NA` return, which `stbam_find_peak()` already documents
+as a legitimate sentinel) — fixed and covered by a further regression
+test. Final verdict: ready to pass its gate.
+
+**Tests:** full suite 670/670 passing (587 pre-existing + 83 new), 0
+failures, 0 regressions, confirmed both before this session's changes
+(the documented 587/587 baseline) and after (re-run twice, once after
+the first fix round and once after the final fix).
+
+**Immediate next step:** the reviewer (you) should decide (1) whether to
+commit the still-untracked `docs/planning/` package, separately from
+Phase 0's own commit or folded into a follow-up commit, and (2) whether
+to authorize Phase 1 (`docs/planning/implementation_phases_proposal.md`
+— folder/input schema, GUI editing, validation, evaluation picker
+screen). **Do not begin Phase 1 without that explicit authorization** —
+this was this session's own standing instruction, restated here for the
+next session.
+
+## Prior phase: maximum-obtainable-exposure feature — implemented, independently reviewed, findings corrected
 
 **Read this section first if you are resuming after the recovery/audit
 phase below.** After that phase completed, a focused new feature was
