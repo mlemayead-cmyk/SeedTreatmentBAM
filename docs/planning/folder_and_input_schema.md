@@ -27,6 +27,8 @@ evaluations/
         agronomy/
           seeding_sets/
             <set_name>.csv
+          planting_method_sets/
+            <set_name>.csv
         receptors/
           receptor_sets/
             <set_name>.csv
@@ -109,12 +111,20 @@ time).
   it resolves the recorded path against the sibling project at read
   time — it does not assume a local copy exists inside the evaluation.
 
-## 2. Named assumption sets (ADR-004)
+## 2. Named assumption sets (ADR-004, ADR-021)
 
-Each of `seeding_sets/`, `receptor_sets/`, `effects_sets/`, `fate_sets/`,
-`reporting_sets/` is a folder of independently named, complete CSV files.
-No file in one of these folders is ever a diff or override against
-another; each is a complete, standalone dataset for its category.
+Each of `seeding_sets/`, `planting_method_sets/`, `receptor_sets/`,
+`effects_sets/`, `fate_sets/`, `reporting_sets/` is a folder of
+independently named, complete CSV files. No file in one of these folders
+is ever a diff or override against another; each is a complete,
+standalone dataset for its category.
+
+`planting_method_sets` was added as a sixth category by ADR-021,
+ratifying a Phase 1 implementation-time finding: planting method is
+scientifically load-bearing (surface-seed fraction by method), so its
+data is its own independently-selectable category rather than being
+folded into `seeding_sets` or treated as metadata. See ADR-021 for the
+full rationale and the alternatives considered.
 
 ### 2.1 Set metadata
 
@@ -146,10 +156,28 @@ was used (`seeding_set_id`, `receptor_set_id`, `effects_set_id`,
 
 **`seeding_sets/<set_id>.csv`** — one row per crop, generalizing today's
 `crop_seeding_parameters.csv`. Minimum columns: `crop`, thousand-kernel-
-weight (TKW) value/bounds, seeding-rate bounds, surface-seed fraction, and
-any other agronomy parameter currently in that reference file (verify
-exact list against `data/reference/crop_seeding_parameters.csv` at
-implementation time).
+weight (TKW) value/bounds, seeding-rate bounds, per-crop planting-method
+*availability* booleans (which methods are agronomically possible for
+this crop), and any other agronomy parameter currently in that reference
+file (verify exact list against `data/reference/crop_seeding_parameters.csv`
+at implementation time). Surface-seed fraction is **not** here — see
+`planting_method_sets` immediately below (ADR-021).
+
+**`planting_method_sets/<set_id>.csv`** — one row per planting method,
+generalizing today's `data/reference/planting_method_parameters.csv`
+(ADR-021). Columns: `planting_method_label`, `planting_method` (key;
+restricted to the project's known method list), `surface_seed_fraction`
+(0-1), `source` (optional — see the note below), `status`. This is
+method-level data (a property of the method, independent of any one
+crop), complementary to `seeding_sets`' per-crop availability booleans,
+not a duplicate of them.
+
+*Note on `source` nullability (ADR-021):* a named set's `source` column,
+here and generally, may legitimately be `NA` for an individual row — the
+live `planting_method_parameters.csv`'s `broadcast` row has no source
+citation because `surface_seed_fraction = 1.0` is definitional, not
+citation-derived. Schemas must accept this as valid reference data, not
+reject it as incomplete.
 
 **`receptor_sets/<set_id>.csv`** — one row per receptor, generalizing
 today's receptor parameter file(s). Body weight, food intake, MSA/
@@ -199,11 +227,13 @@ atomic use condition:
 | `target_pest` | string, optional | Registration/context metadata. |
 | `notes` | string, optional | Free text. |
 
-Quantitative agronomic assumptions (TKW, seeding-rate bounds, surface-
-seed fraction) are **not** stored here — they live in the selected
-`seeding_sets/` set, joined by `crop` at calculation time, exactly as
-today's `build_scenario_inputs()` joins `scenario_definitions.csv`
-against `crop_seeding_parameters.csv`.
+Quantitative agronomic assumptions (TKW, seeding-rate bounds) are **not**
+stored here — they live in the selected `seeding_sets/` set, joined by
+`crop` at calculation time; surface-seed fraction lives in the selected
+`planting_method_sets/` set (ADR-021), joined by `planting_method`. Both
+joins happen at calculation time exactly as today's
+`build_scenario_inputs()` joins `scenario_definitions.csv` against
+`crop_seeding_parameters.csv` and `planting_method_parameters.csv`.
 
 ## 4. Validation schema (ADR-006)
 
@@ -215,7 +245,7 @@ entry paths enforce identical rules:
 |---|---|---|
 | Column presence/type | every table | `rate_value` must be numeric. |
 | Permitted values | categorical columns | `rate_level` in `{high, mid, low}`; `planting_method` in the project's known method list. |
-| Referential integrity | cross-table joins | every `use_patterns.csv` `crop` value must exist in the currently-selected `seeding_sets` set. |
+| Referential integrity | cross-table joins | every `use_patterns.csv` `crop` value must exist in the currently-selected `seeding_sets` set; every `use_patterns.csv` `planting_method` value must exist in the currently-selected `planting_method_sets` set (ADR-021). |
 | Uniqueness | key columns | `use_id` + `planting_method` unique within `use_patterns.csv`; `set_id` unique within a category's manifest. |
 | Range sanity | numeric columns | e.g. reject a body weight of zero or a negative rate — exact bounds sourced from existing scientific validation in `R/calculations/00_validation.R`, not reinvented here. |
 

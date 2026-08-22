@@ -2,13 +2,134 @@
 
 Last saved: 2026-08-21 (America/Toronto)
 
-## Current phase: `stbam` redesign, Phase 1 (folder/input schema, GUI editing, validation) — implemented. STOP for human review before Phase 2.
+## Current phase: `stbam` redesign, Phase 2 (migration + evaluation-inputs -> engine adapter) — implemented, independently reviewed (2 passes), all findings fixed. STOP for human review before Phase 3.
 
-**Read this section first.** Phase 0 (below) is complete and unchanged.
+**Read this section first.** Phase 0 and Phase 1 (below) are complete and
+unchanged. This session implemented **Phase 2 only**, per explicit
+authorization limited to that phase, following
+`docs/planning/migration_plan.md`'s 9-point acceptance gate. **Phase 3 was
+not started.**
+
+**Before migrating anything, ratified a Phase 1 implementation-time
+finding into the planning record (ADR-021, new):** Phase 1 had resolved an
+open item in `migration_plan.md` §7 (where `planting_method_parameters.csv`
+belongs) by giving it its own named-set category,
+`agronomy/planting_method_sets/`, rather than either of the two options
+`migration_plan.md` had left open. Checked this against every existing ADR
+and schema passage touching planting method — no accepted ADR was
+contradicted (ADR-006's own text had already anticipated a planting-method
+set as a validation target); this was a gap-filling ratification, not a
+conflict. Recorded as **ADR-021** in
+`docs/planning/assessment_workspace_architecture.md`, with
+`folder_and_input_schema.md` and `migration_plan.md` updated to match. Also
+formally documented, as part of the same ADR, that a named set's `source`
+field may legitimately be `NA` at the row level (the live
+`planting_method_parameters.csv` broadcast row has no citation because
+`surface_seed_fraction = 1.0` is definitional) — a general schema rule now,
+not a one-off Phase 1 fix.
+
+**What Phase 2 built:**
+- **`R/migration/10_scenario_migration.R`** (new directory, new file) — the
+  one-time migration transformations: `stbam_transform_use_patterns()`
+  (`scenario_definitions.csv` -> `use_patterns.csv`, ADR-005 normalization,
+  one row per available planting method sharing one `use_id` per
+  workbook/crop/rate_level/rate/unit combination -- rate value+unit are
+  part of the identity because several legume crops share a `rate_level`
+  across two distinct mg/kg-seed vs. mg/seed uses),
+  `stbam_extract_crop_family_reporting_set()`
+  (`STBAM_WORKBOOK_TO_CROP_FAMILY` -> `reporting_sets/crop_family.csv`,
+  ADR-010/ADR-016), `stbam_tier1_provenance_table()` (path+SHA-256
+  provenance for the 6 source workbooks + the Table 162 document, ADR-018,
+  reusing `source_manifest.csv`'s already-verified hashes rather than
+  re-hashing), and `migrate_to_evaluation()` (orchestrates all of the
+  above on top of the unchanged `create_evaluation()`). Kept in its own
+  directory rather than `R/evaluations/` specifically so Phase 1's own
+  test asserting "the evaluation-persistence layer never calls
+  `parameter_set()`" stays honestly enforced rather than needing to be
+  narrowed.
+- **`R/migration/20_engine_adapter.R`** (new file) — the evaluation-inputs
+  -> engine-parameter-set adapter (`build_baseline_from_evaluation()` /
+  `build_parameter_set_from_evaluation()`), the key new integration
+  boundary: reads a complete evaluation's selected named sets +
+  `use_patterns.csv` and produces the exact `stbam_baseline`/
+  `stbam_parameter_set` shape the **unchanged** `build_scenario_inputs()`/
+  `build_scenario_summary()` consume, with no legacy-fallback path. Fails
+  loudly (never silently substitutes) on: an unrecognized `set_ids`
+  category key, a missing/unresolved named set, an empty
+  `use_patterns.csv`, an unresolved crop/planting-method reference, a
+  single `use_id`'s planting methods disagreeing with the seeding set's
+  own availability booleans, or two distinct `use_id`s collapsing onto one
+  scenario identity.
+- **`scripts/migrate_to_evaluation.R`** (new) — CLI entry point.
+- **`tests/testthat/test-15-phase2-migration.R`** (new) — 121 new
+  assertions: the 9-point migration-equivalence gate (bit-exact
+  `scenario_inputs`/`scenario_summary` match against a freshly-computed,
+  non-stored current-baseline recomputation; hard-coded, independently
+  derived row counts; tier-3 provenance SHA-256 completeness; lossless
+  named-set copy; crop-family carry-forward; no crop-count truncation;
+  re-runnability), plus adapter unit tests (hand-built minimal evaluation,
+  all 6 failure modes, multi-set-id selection) and the regression tests
+  added for the two independent-review findings below.
+- **Real migration performed**: `evaluations/thiamethoxam_bam_2026/` (new,
+  tracked; its `outputs/` is gitignored like the top-level `outputs/`).
+  1,456 `scenario_inputs` rows and 104,832 `scenario_summary` rows,
+  bit-identical (`identical()`, not just tolerance-equal) to the
+  pre-migration engine's own output for the current dataset. 42 distinct
+  crops, 364 `use_patterns.csv` rows, all 6 tier-3 provenance files
+  byte-identical, tier-1 workbook + Table 162 document hashes independently
+  re-verified this session against the sibling project's live files
+  (matched exactly; sibling project untouched, read-only).
+- **`R/load_model.R`**: one-line addition sourcing the new `R/migration/`
+  directory (additive, same pattern as Phase 1's `R/evaluations/`
+  registration).
+- **`.gitignore`**: added `evaluations/*/outputs/` (regenerable, mirrors
+  the existing top-level `outputs/` rule).
+
+**Independent adversarial review (ADR-019, mandatory for the adapter and
+migration-equivalence categories) — two passes, both by a separate agent
+process with no prior exposure to the implementation.** First pass: found
+2 `CONFIRMED_ERROR` (the adapter's planting-method guard checked only a
+per-crop aggregate, which could silently accept a narrower per-use
+restriction or silently collapse two distinct declared uses into one
+scenario row; and per-scenario `source`/`status`/`seed_use_number` were
+silently dropped with no field to recover them) and 1 `ROBUSTNESS_ISSUE` (a
+mistyped `set_ids` category key silently fell back to `"default"`) — all 3
+fixed, plus a documentation-wording fix. Everything else independently
+re-derived as sound: bit-exact `scenario_inputs`/`scenario_summary`
+equivalence and all five hard-coded counts recomputed from scratch (not
+taken on trust), no legacy-fallback path, sound type/unit handling,
+lossless double-precision round-trip, all 6 documented failure modes
+reachable and correctly triggered. Second pass (re-review of the fixes,
+not self-certified) traced each fix against the exact failure case
+originally demonstrated, found no new issues, and independently re-ran the
+full suite from scratch (921/921). Full detail:
+`docs/migration_equivalence_report.md` §9.
+
+**Tests:** starting baseline 801/801 (confirmed unchanged before any
+edit). Final: **921/921 passing** (801 pre-existing + 121 new -
+duplicated across two review-driven iterations is already netted out), 0
+failures, 0 regressions, run with the full `core`+`reporting`+`shiny`
+layer loaded, confirmed by two independent full-suite runs (this session's
+own, and the independent reviewer's own separate re-run).
+
+**Not implemented in Phase 2 (explicitly out of scope, confirmed
+unimplemented):** run lifecycle / `Run_001` creation / dedup, raw or
+grouped results, `key_day_results`, table/figure definitions, Table 162 or
+Sensitivity redesign, legacy app retirement. No file under
+`R/calculations/` was touched; `STBAM_MODEL_VERSION` unchanged
+(`"1.2.0"`); no scientific calculation semantics changed.
+
+**Immediate next step:** human review of Phase 2 (see
+`docs/migration_equivalence_report.md` for the full evidence package), then
+explicit authorization before Phase 3 (run lifecycle and raw results)
+begins.
+
+## Prior phase: `stbam` redesign, Phase 1 (folder/input schema, GUI editing, validation) — implemented, human-reviewed, Phase 2 authorized
+
+**Read this section if you need Phase 1's own detail.**
 This session implemented **Phase 1 only**, per explicit authorization
 limited to that phase, following `docs/planning/implementation_phases_proposal.md`
-and the readiness review's vertical-slice-first amendment. **Phase 2 was
-not started.**
+and the readiness review's vertical-slice-first amendment.
 
 **What Phase 1 built** (all new files; only two pre-existing files touched,
 both additive one-line/one-block registrations — `R/load_model.R` sources

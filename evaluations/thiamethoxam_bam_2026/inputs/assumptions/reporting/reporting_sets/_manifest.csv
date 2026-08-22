@@ -1,0 +1,2 @@
+set_id,set_name,description,source,date_or_version,status,notes
+crop_family,Crop family (workbook-derived),"Extracted from the hard-coded STBAM_WORKBOOK_TO_CROP_FAMILY R constant (R/summaries/24_table162_support.R) at migration time. Migration ticket 4, ADR-010/ADR-016.",STBAM_WORKBOOK_TO_CROP_FAMILY,2026-08-21,active,

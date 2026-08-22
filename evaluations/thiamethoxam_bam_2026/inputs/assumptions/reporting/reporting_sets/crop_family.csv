@@ -1,0 +1,43 @@
+crop,group_label,display_order
+Barley,Small Cereals,NA
+"Bean, broad/faba, large-seeded",Legumes,NA
+"Bean, broad/faba, small-seeded",Legumes,NA
+"Bean, coloured excluding kidney and cranberry , narrow row/solid seeding",Legumes,NA
+"Bean, coloured excluding kidney and cranberry , wide row/standard planting",Legumes,NA
+"Bean, kidney and cranberry",Legumes,NA
+"Bean, lima",Legumes,NA
+"Bean, navy/white and black, narrow row/solid seeding",Legumes,NA
+"Bean, navy/white and black, wide row/standard planting",Legumes,NA
+"Bean, snap",Legumes,NA
+"Bean, Vigna anugularis  (adzuki bean) or Vigna unguiculata (yardlong bean /cowpea/black-eyed pea/southern pea/crowder pea/ /Chinese long bean)",Legumes,NA
+Buckwheat,Small Cereals,NA
+"Canola/rapeseed, all varieties, broadcast seeding",Canola/Mustard,NA
+"Canola/rapeseed, all varieties, standard seeding",Canola/Mustard,NA
+"Chickpea, Desi",Legumes,NA
+"Chickpea, Kabuli",Legumes,NA
+"Cucumber, fresh market",Cucurbits,NA
+"Cucumber, processing, including pickling and gherkin",Cucurbits,NA
+Gourd,Cucurbits,NA
+"Gourd, bitter",Cucurbits,NA
+Lentil,Legumes,NA
+Lupin,Legumes,NA
+Melon (excluding citron and watermelon),Cucurbits,NA
+"Melon, citron and watermelon",Cucurbits,NA
+"Millet, pearl",Small Cereals,NA
+"Millet, proso",Small Cereals,NA
+"Mustard, brown and oriental",Canola/Mustard,NA
+"Mustard, oilseed, broadcast seeding",Canola/Mustard,NA
+"Mustard, oilseed, standard planting",Canola/Mustard,NA
+"Mustard, yellow",Canola/Mustard,NA
+Oat,Small Cereals,NA
+"Pea, field/dry pulse",Legumes,NA
+"Pea, horticultural/vegetable",Legumes,NA
+Rye,Small Cereals,NA
+Sorghum,Small Cereals,NA
+Soybean,Legumes,NA
+"Squash, summer",Cucurbits,NA
+"Squash, winter",Cucurbits,NA
+Triticale,Small Cereals,NA
+"Wheat, Durum",Small Cereals,NA
+"Wheat, spring (non-durum)",Small Cereals,NA
+"Wheat, winter (non-durum)",Small Cereals,NA

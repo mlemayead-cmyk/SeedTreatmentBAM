@@ -1,0 +1,11 @@
+taxon,regression_name,reference,regression_taxon_group,feeding_guild,diet_assumption,coefficient_a,exponent_b,n_species,status
+bird,"Nagy 1987, All birds",Nagy 1987,All birds,Ominivorous and frugivorous,NA,0.648,0.651,50.0,ASSESSMENT_REFERENCE
+bird,"Nagy 1987, Passerines",Nagy 1987,Passerines,Ominivorous and frugivorous,NA,0.398,0.85,26.0,ASSESSMENT_REFERENCE
+bird,"Nagy et al. 1999, All birds, consuming seeds",Nagy et al. 1999,All birds,Granivore,seeds,0.6150882915307614,0.681,95.0,ASSESSMENT_REFERENCE
+bird,"Nagy et al. 1999, Passerines, consuming seeds",Nagy et al. 1999,Passerines,Granivore,seeds,0.609230307801897,0.68,40.0,ASSESSMENT_REFERENCE
+bird,"Nagy et al. 1999, All birds, consuming grasshopers, crickets",Nagy et al. 1999,All birds,Omnivorous,"grasshopers, crickets",0.6454630219767249,0.681,95.0,ASSESSMENT_REFERENCE
+mammal,"Nagy 1987, All eutherians",Nagy 1987,All eutherians,Omnivorous,NA,0.235,0.822,46.0,ASSESSMENT_REFERENCE
+mammal,"Nagy et al. 1999, Rodentia, consuming seeds",Nagy et al. 1999,Rodentia,Granivore,seeds,0.3021341254981354,0.712,30.0,ASSESSMENT_REFERENCE
+mammal,"Nagy et al. 1999, Eutherians, consuming seeds",Nagy et al. 1999,Eutherians,Omnivorous,seeds,0.2321139905742974,0.772,30.0,ASSESSMENT_REFERENCE
+mammal,"Nagy et al. 1999, Rodentia, consuming grasshopers, crickets",Nagy et al. 1999,Rodentia,Omnivorous,"grasshopers, crickets",0.27878915156117856,0.712,30.0,ASSESSMENT_REFERENCE
+mammal,"Nagy et al. 1999, Eutherians, consuming grasshopers, crickets",Nagy et al. 1999,Eutherians,Omnivorous,"grasshopers, crickets",0.21417925694754772,0.772,30.0,ASSESSMENT_REFERENCE

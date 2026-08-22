@@ -120,7 +120,7 @@ category, becoming one named set per category:
 | `fir_regressions.csv` | Carried with the receptor set's provenance, per `folder_and_input_schema.md` §2.2's note that a receptor set is a complete definition, not just body weight — exact placement (own file vs. embedded) is an implementation-time schema choice, not fixed here. |
 | `effects_metrics.csv` | `assumptions/effects/effects_sets/<set_id>.csv` |
 | `dissipation_parameters.csv` | `assumptions/fate/fate_sets/<set_id>.csv` |
-| `planting_method_parameters.csv` | Joined into the seeding set (surface-seed fraction by planting method is an agronomy parameter) or its own file within `agronomy/` — implementation-time choice; must be unambiguous which named set "owns" it since `use_patterns.csv` (§2.4) references planting method by label, not by a set ID of its own. |
+| `planting_method_parameters.csv` | `assumptions/agronomy/planting_method_sets/<set_id>.csv` — its own named-set category (ADR-021, ratifying the Phase 1 implementation finding that planting method is scientifically load-bearing). `use_patterns.csv` (§2.4) continues to reference planting method by label, validated against this category's currently-selected set, not by a set ID of its own. |
 | `scenario_definitions.csv` | Transformed into `uses/use_patterns.csv` (§2.4) — the one step with genuine transformation logic. |
 
 ### 2.3 Tier-3 reviewer/document-analysis registers → `inputs/reference/` (unchanged)
@@ -341,10 +341,11 @@ second legacy dataset ever needed the same treatment.
   — an extension of the existing `source_manifest.csv` pattern is
   recommended, but the precise column layout is an implementation-time
   choice.
-- Whether `planting_method_parameters.csv` becomes its own named-set
-  category or is folded into `seeding_sets` (§2.2 table) — implementation-
-  time schema choice, flagged so it is made deliberately rather than
-  defaulted silently.
+- ~~Whether `planting_method_parameters.csv` becomes its own named-set
+  category or is folded into `seeding_sets`~~ — **Resolved (ADR-021):**
+  its own category, `agronomy/planting_method_sets/`. Ratified from the
+  Phase 1 implementation finding; see ADR-021 for rationale and the
+  `source`-nullability rule this decision also formalizes.
 - Exact timing for the Table 162 and Sensitivity redesign checkpoints —
   deliberately not fixed by this plan or by ADR-016/ADR-017; tracked as
   deferred capabilities in `implementation_phases_proposal.md`.

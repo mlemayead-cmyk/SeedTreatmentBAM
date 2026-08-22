@@ -2009,3 +2009,132 @@ calendar timing depends on how Phases 0-7 and the Table 162/Sensitivity
 checkpoints actually proceed.
 
 ---
+
+### ADR-021 — `planting_method_sets` is its own named-set category, ratifying the Phase 1 implementation finding
+
+Status: Accepted
+
+#### Context
+ADR-004's folder tree and `folder_and_input_schema.md` §1/§2.2 named five
+named-set categories (`seeding_sets`, `receptor_sets`, `effects_sets`,
+`fate_sets`, `reporting_sets`) and left the destination of
+`data/reference/planting_method_parameters.csv` (surface-seed fraction by
+planting method) as an explicit two-way open choice in `migration_plan.md`
+§7: fold it into `seeding_sets`, or give it "its own file within
+`agronomy/`." Neither option anticipated a third, fully independent
+named-set category with its own manifest and `set_id` provenance field.
+
+During Phase 1 implementation, this was resolved a third way — as its own
+category, `agronomy/planting_method_sets/` — per the human instruction
+that planting method is scientifically load-bearing and must not be
+demoted to metadata folded into another category
+(`R/evaluations/50_schema_registry.R`'s `stbam_schema_planting_method_sets()`,
+`PROJECT_STATE.md`'s Phase 1 section). This ADR ratifies that
+implementation-time decision in the planning record; it does not
+authorize any further architecture change.
+
+This resolution was checked, before ratification, against every existing
+ADR and schema passage that touches planting method:
+- ADR-004's own folder tree never listed a planting-method category, so it
+  is silent, not contradicted, by adding one.
+- ADR-006's own decision text already anticipated a planting-method set as
+  a validation target ("referential integrity such as crop names matching
+  a planting-method set"), which is more consistent with a dedicated
+  category than with folding the data into `seeding_sets`.
+- ADR-005 (`use_patterns.csv`) references planting method by string label
+  on each row, not by a set ID — unaffected either way, since
+  `use_patterns.csv` was never going to carry a `planting_method_set_id`
+  column itself (there is exactly one planting-method set per evaluation
+  in the current model, propagated via ADR-004 point 6's general
+  selected-set-identity mechanism, not via `use_patterns.csv`).
+
+No accepted ADR is contradicted by this decision. It is a gap-filling
+ratification, not a conflict resolution.
+
+#### Decision
+1. **`agronomy/planting_method_sets/` is the sixth named-set category**,
+   alongside `seeding_sets`, `receptor_sets`, `effects_sets`, `fate_sets`,
+   `reporting_sets` (ADR-004). Its folder path (relative to
+   `inputs/assumptions/`) is `agronomy/planting_method_sets`, matching
+   `STBAM_SET_CATEGORIES$planting_method_sets$path` as implemented.
+2. **Schema**: one row per planting method, columns
+   `planting_method_label`, `planting_method` (key; values restricted to
+   `STBAM_PLANTING_METHODS`), `surface_seed_fraction` (0-1), `source`
+   (optional — see point 3), `status`. Generalizes
+   `data/reference/planting_method_parameters.csv` unchanged.
+3. **A named set's `source` field is legitimately nullable at the
+   per-row level, project-wide, not only for this category.** The live
+   `data/reference/planting_method_parameters.csv`'s `broadcast` row
+   carries a literal `NA` in `source` (`surface_seed_fraction = 1.0` is
+   definitional, not citation-derived) — this is authoritative reference
+   data, not a data-entry defect, so the schema must accept it rather than
+   reject the project's own assessment default on first evaluation
+   creation. `stbam_manifest_schema()`'s own `source` column was already
+   optional for the same reason; this ADR extends that same treatment
+   explicitly to any category schema's own row-level `source` column
+   (currently only `planting_method_sets` has one), rather than leaving it
+   as an unstated, category-specific implementation detail.
+4. **`seeding_sets` keeps the planting-method *availability* booleans**
+   (`spring_seeded`, `fall_seeded`, `broadcast_seeded`, `drill_seeded`,
+   `precision_planted`) — these describe which methods are agronomically
+   possible for a crop, a property of the crop, not of the method itself.
+   `planting_method_sets` holds the method-level constant (surface-seed
+   fraction), a property of the method, not of any one crop. The two
+   categories are complementary, not overlapping.
+
+#### Alternatives considered
+- Fold `planting_method_parameters.csv` into `seeding_sets` (migration_plan.md
+  §7's first option) — rejected: this would require repeating each crop's
+  four rows' worth of per-crop data once per crop (a table with per-crop
+  granularity absorbing method-level, not crop-level, data), and would
+  prevent selecting a different planting-method assumption set
+  independently of a seeding-parameters set, contrary to the human
+  instruction that planting method is independently scientifically
+  load-bearing.
+- Treat it as non-set metadata (e.g. a fixed constant embedded in code or
+  in the evaluation's top-level config, not a selectable set at all) —
+  rejected: this is exactly the "override-era global constant" pattern
+  ADR-004 was written to move away from, and would make a future
+  alternative planting-method assumption set (e.g. a revised surface-seed
+  fraction study) impossible to represent without another architecture
+  change.
+
+#### Rationale
+A dedicated category keeps method-level science independently selectable
+and versionable, matches how the human instruction characterized planting
+method's scientific weight, and is at least as consistent with ADR-006's
+own already-drafted validation language as either of the two alternatives
+`migration_plan.md` §7 had left open.
+
+#### Consequences
+- `folder_and_input_schema.md` §1 (directory tree) and §2.2 (category
+  schema table) are updated (this session) to list
+  `agronomy/planting_method_sets/` as a sixth category and to state the
+  `source`-nullability rule generally, rather than leaving both as an
+  undocumented Phase 1 implementation detail.
+- `migration_plan.md` §2.2 (destination table) and §7 (open items) are
+  updated (this session) to mark this choice resolved, pointing at this
+  ADR instead of restating it as still-open.
+- `use_patterns.csv`'s own validation continues to check `planting_method`
+  against `STBAM_PLANTING_METHODS` (a fixed enum), not against a
+  `planting_method_sets` set ID — an evaluation is expected to have
+  exactly one active planting-method set, consistent with how Phase 1
+  implemented every other category before per-run "selected set" tracking
+  exists (Phase 3).
+- Phase 2 migration (ADR-015) populates `agronomy/planting_method_sets/`
+  from `data/reference/planting_method_parameters.csv` using the same
+  generic named-set population step used for every other category — no
+  special-cased migration logic is required as a result of this ADR.
+
+#### Scientific implications
+None. This ADR records where data already used unchanged by the
+validated engine is filed in the new architecture; it does not add,
+remove, or alter any surface-seed-fraction value or the calculation that
+consumes it.
+
+#### Open follow-ups
+None. The two `migration_plan.md` §7 open items this ADR closes
+(planting-method-set placement; and, as a documented consequence, the
+`source`-nullability rule) are both resolved above.
+
+---

@@ -1,0 +1,3 @@
+parameter,value,unit,description,source,status
+residue_dt50_days,10,days,Single first-order DT50 for thiamethoxam residues on/in treated seed,Workbook 'Further Risk Characterization'!E4; assessment MAIN-P000138,ASSESSMENT_DEFAULT
+surface_seed_dt50_days,14,days,Single first-order DT50 for loss of treated seed from the soil surface,Workbook 'Further Risk Characterization'!J4; assessment MAIN-P000183,ASSESSMENT_DEFAULT

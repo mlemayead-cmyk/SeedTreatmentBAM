@@ -1,0 +1,5 @@
+planting_method_label,planting_method,surface_seed_fraction,source,status
+Spring - standard drill,drill_spring,0.033,"deSnoo & Luttik 2004, Avalability of Pesticide-treated seed on arable fields, Pest Management Science. 60:501-506.",ASSESSMENT_DEFAULT
+Fall - standard drill,drill_fall,0.092,"deSnoo & Luttik 2004, Avalability of Pesticide-treated seed on arable fields, Pest Management Science. 60:501-506.",ASSESSMENT_DEFAULT
+Precision planter,precision,0.005,"deSnoo & Luttik 2004, Avalability of Pesticide-treated seed on arable fields, Pest Management Science. 60:501-506.",ASSESSMENT_DEFAULT
+Broadcast,broadcast,1,NA,ASSESSMENT_DEFAULT

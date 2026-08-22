@@ -26,6 +26,10 @@ data/scenarios/*
 data/processed/*
 !data/processed/.gitkeep
 
+# Evaluation outputs are regenerable from inputs/ + model_version (ADR-002);
+# inputs/ itself is tracked, mirroring data/reference/.
+evaluations/*/outputs/
+
 # OS noise
 Thumbs.db
 .DS_Store
